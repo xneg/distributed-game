@@ -1,12 +1,13 @@
-from client import ClientRequest, ClientResponse, RequestType
+from contracts import ClientRequest, ClientResponse, RequestType
 from constant_object import ConstantObject
 from link import Link
 from timer import Timer
 
 
 class Node(ConstantObject):
-    def __init__(self, node_id):
+    def __init__(self, node_id, is_leader=False):
         self._node_id = node_id
+        self._is_leader = is_leader
         self._messages = []
         self._requests = []
         self._timer = Timer()
@@ -21,7 +22,7 @@ class Node(ConstantObject):
         print(f"Node {self._node_id} accepted {message} at {self._timer.current_epoch()}")
 
     def is_leader(self):
-        return False
+        return self._is_leader
 
     def process(self):
         for request in self._requests:

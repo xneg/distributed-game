@@ -12,9 +12,7 @@ from node import Node
 from simulator_loop import SimulatorLoop
 
 if __name__ == '__main__':
-    node = Node(1)
-    load_balancer = LoadBalancer(nodes=[node])
-    clients = [Client(1, load_balancer), Client(2, load_balancer)]
-    objects = [load_balancer] + [node] + clients
+    nodes = [Node(1), Node(2, is_leader=True), Node(3)]
+    objects = [LoadBalancer(nodes=nodes), Client(1), Client(2)] + nodes
     simulator = SimulatorLoop(objects=objects)
     simulator.loop()
