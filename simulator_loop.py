@@ -1,23 +1,14 @@
 import time
 
+from singleton import Singleton
 from timer import Timer
 
 
-class Singleton (type):
-    _instances = {}
-
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
-
-
 class SimulatorLoop(metaclass=Singleton):
-    def __init__(self, load_balancer, clients):
+    def __init__(self, objects):
         self._objects = []
         self._objects.append(Timer())
-        self._objects.append(load_balancer)
-        self._objects.extend(clients)
+        self._objects.extend(objects)
 
     def add_object(self, obj):
         self._objects.append(obj)

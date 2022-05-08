@@ -8,10 +8,13 @@
 # Press the green button in the gutter to run the script.
 from client import Client
 from load_balancer import LoadBalancer
+from node import Node
 from simulator_loop import SimulatorLoop
 
 if __name__ == '__main__':
-    load_balancer = LoadBalancer()
+    node = Node(1)
+    load_balancer = LoadBalancer(nodes=[node])
     clients = [Client(1, load_balancer), Client(2, load_balancer)]
-    simulator = SimulatorLoop(load_balancer=load_balancer, clients=clients)
+    objects = [load_balancer] + [node] + clients
+    simulator = SimulatorLoop(objects=objects)
     simulator.loop()

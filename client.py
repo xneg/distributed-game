@@ -33,7 +33,9 @@ class Client(ConstantObject):
         self._responses = []
         self._waiting = False
         self._timer = Timer()
+        # TODO: extract contracts and use load_balancer as singleton
         self._load_balancer = load_balancer
+        # TODO: replace print with logger
         print(f"Client {self._id} created at {self._timer.current_epoch()}")
 
     def add_message(self, response: ClientResponse):
