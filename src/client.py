@@ -4,6 +4,7 @@ import random
 from contracts import ClientResponse, RequestType, ClientRequest
 from link import Link
 from load_balancer import LoadBalancer
+from consistency_checker import ConsistencyChecker
 from timer import Timer
 
 
@@ -14,11 +15,18 @@ class Client:
         self._response = None
         self._waiting = False
         self._timer = Timer()
+        self._checker = ConsistencyChecker()
+        self._balancer = LoadBalancer()
         logging.info(f"Client {self._id} created at {self._timer.current_epoch()}")
 
     def add_message(self, sender, response: ClientResponse):
-        logging.debug(f"Client {self._id} received {response} at {self._timer.current_epoch()}")
+        logging.debug(
+            f"Client {self._id} received {response} at {self._timer.current_epoch()}"
+        )
         self._response = response
+        self._checker.add_response(
+            client_id=self._id, response=response, time=self._timer.current_epoch()
+        )
         if self._response.type != self._request.type:
             raise TypeError("Response type doesn't correspond request type!")
 
@@ -38,5 +46,8 @@ class Client:
         logging.debug(
             f"Client {self._id} sent {self._request} at {self._timer.current_epoch()}"
         )
-        Link(self, LoadBalancer(), self._request)
+        Link(self, self._balancer, self._request)
+        self._checker.add_request(
+            client_id=self._id, request=self._request, time=self._timer.current_epoch()
+        )
         self._waiting = True

@@ -5,8 +5,10 @@ from simulator_loop import SimulatorLoop
 
 
 class Link:
+    max_duration = 10
+
     def __init__(self, sender, recipient, message, const_time=None):
-        self._duration = const_time if const_time else random.randrange(10)
+        self._duration = const_time if const_time else random.randrange(Link.max_duration)
         self._timer = 0
         self._prepared = False
         self._destroyed = False

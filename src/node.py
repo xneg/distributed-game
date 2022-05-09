@@ -36,7 +36,7 @@ class Node:
     def _process_request(self, sender, request):
         if request.type == RequestType.Read:
             value = self._storage.get("x", None)
-            Link(self, sender, ClientResponse(type=RequestType.Read, value=value, id=request.id))
+            Link(self, sender, ClientResponse(type=RequestType.Read, value=value or "N", id=request.id))
         else:
             self._storage["x"] = request.value
             Link(self, sender, ClientResponse(type=RequestType.Write, value="SUCCESS", id=request.id))

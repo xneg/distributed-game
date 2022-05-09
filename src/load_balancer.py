@@ -7,7 +7,7 @@ from timer import Timer
 
 
 class LoadBalancer(metaclass=Singleton):
-    def __init__(self, nodes):
+    def __init__(self, nodes=None):
         self._nodes = nodes
         self._leader_node = next(iter([n for n in nodes if n.is_leader()]), None)
         self._timer = Timer()
@@ -24,7 +24,9 @@ class LoadBalancer(metaclass=Singleton):
         elif isinstance(message, ClientResponse):
             self._responses.append((sender, message))
 
-        logging.debug(f"LoadBalancer accepted {message} at {self._timer.current_epoch()}")
+        logging.debug(
+            f"LoadBalancer accepted {message} at {self._timer.current_epoch()}"
+        )
 
     def process(self):
         while self._requests:
@@ -35,18 +37,11 @@ class LoadBalancer(metaclass=Singleton):
             (sender, response) = self._responses.pop(0)
             self._process_response(sender, response)
 
-    def prepared(self):
-        return True
-
-    def destroyed(self):
-        return False
-
     def _process_response(self, sender, response):
         if response.id in self._waiting_responses:
             wait = self._waiting_responses.pop(response.id)
             #  additionaly check that response received from exact node
             Link(self, wait["client"], response)
-
 
     def _process_request(self, sender, request):
         target_node = self._leader_node if self._leader_node else self._round_robin()
@@ -58,4 +53,3 @@ class LoadBalancer(metaclass=Singleton):
         i = self._round_robin_counter % len(self._nodes)
         self._round_robin_counter = i + 1
         return self._nodes[i]
-
