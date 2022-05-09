@@ -49,7 +49,6 @@ class LoadBalancer(metaclass=Singleton):
         Link(self, target_node, request)
 
     def _round_robin(self):
-        # TODO: check it
         i = self._round_robin_counter % len(self._nodes)
         self._round_robin_counter = i + 1
         return self._nodes[i]

@@ -22,15 +22,17 @@ class ConsistencyChecker(metaclass=Singleton):
         self._client_lines[client_id].append((time, response))
 
     def process(self):
-        line = ''
+        line = ""
         for client in self._client_lines:
             (time, event) = self._client_lines[client][-1]
             if time != self._timer.current_epoch():
-                line = line + ('|' if isinstance(event, ClientRequest) else ' ')
+                line = line + ("|" if isinstance(event, ClientRequest) else " ")
             else:
                 if event.type == RequestType.Read:
-                    line = line + 'R' + str(event.value if event.value is not None else '')
+                    line = (
+                        line + "R" + str(event.value if event.value is not None else "")
+                    )
                 else:
-                    line = line + 'W' + str(event.value)[0]
-            line = line + ' ' * (4 - len(line) % 4)
+                    line = line + "W" + str(event.value)[0]
+            line = line + " " * (4 - len(line) % 4)
         print(line)
