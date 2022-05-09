@@ -12,7 +12,6 @@ class RequestType(Enum):
 
 @dataclass(frozen=True)
 class ClientRequest:
-    client: Any
     type: RequestType
     value: int = None
     id: UUID = field(default_factory=uuid.uuid4, init=False)
@@ -20,7 +19,6 @@ class ClientRequest:
 
 @dataclass(frozen=True)
 class ClientResponse:
-    client: Any
     type: RequestType
     value: Any
-    id: UUID = field(default_factory=uuid.uuid4, init=False)
+    id: UUID

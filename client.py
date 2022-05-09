@@ -34,7 +34,7 @@ class Client(ConstantObject):
     def _send_request(self):
         request_type = random.choice(list(RequestType))
         value = random.randrange(10) if request_type == RequestType.Write else None
-        self._request = ClientRequest(self, request_type, value)
+        self._request = ClientRequest(request_type, value)
 
         print(
             f"Client {self._id} sent {self._request} at {self._timer.current_epoch()}"
