@@ -1,3 +1,5 @@
+import logging
+
 from contracts import ClientRequest, ClientResponse, RequestType
 from link import Link
 from timer import Timer
@@ -11,7 +13,7 @@ class Node:
         self._requests = []
         self._timer = Timer()
         self._storage = {}
-        print(f"Node {self._id} created at {self._timer.current_epoch()}")
+        logging.info(f"Node {self._id} created at {self._timer.current_epoch()}")
 
     def add_message(self, sender, message):
         if isinstance(message, ClientRequest):
@@ -19,7 +21,7 @@ class Node:
         else:
             self._messages.append((sender, message))
 
-        print(f"Node {self._id} accepted {message} at {self._timer.current_epoch()}")
+        logging.debug(f"Node {self._id} accepted {message} at {self._timer.current_epoch()}")
 
     def is_leader(self):
         return self._is_leader

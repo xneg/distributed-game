@@ -1,3 +1,4 @@
+import logging
 import random
 
 from contracts import ClientResponse, RequestType, ClientRequest
@@ -13,11 +14,10 @@ class Client:
         self._response = None
         self._waiting = False
         self._timer = Timer()
-        # TODO: replace print with logger
-        print(f"Client {self._id} created at {self._timer.current_epoch()}")
+        logging.info(f"Client {self._id} created at {self._timer.current_epoch()}")
 
     def add_message(self, sender, response: ClientResponse):
-        print(f"Client {self._id} received {response} at {self._timer.current_epoch()}")
+        logging.debug(f"Client {self._id} received {response} at {self._timer.current_epoch()}")
         self._response = response
         if self._response.type != self._request.type:
             raise TypeError("Response type doesn't correspond request type!")
@@ -35,7 +35,7 @@ class Client:
         value = random.randrange(10) if request_type == RequestType.Write else None
         self._request = ClientRequest(request_type, value)
 
-        print(
+        logging.debug(
             f"Client {self._id} sent {self._request} at {self._timer.current_epoch()}"
         )
         Link(self, LoadBalancer(), self._request)

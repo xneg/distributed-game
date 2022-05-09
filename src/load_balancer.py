@@ -1,3 +1,5 @@
+import logging
+
 from client import ClientRequest, ClientResponse
 from link import Link
 from singleton import Singleton
@@ -14,7 +16,7 @@ class LoadBalancer(metaclass=Singleton):
         self._waiting_responses = {}
         self._round_robin_counter = 0
 
-        print(f"LoadBalancer created at {self._timer.current_epoch()}")
+        logging.info(f"LoadBalancer created at {self._timer.current_epoch()}")
 
     def add_message(self, sender, message):
         if isinstance(message, ClientRequest):
@@ -22,7 +24,7 @@ class LoadBalancer(metaclass=Singleton):
         elif isinstance(message, ClientResponse):
             self._responses.append((sender, message))
 
-        print(f"LoadBalancer accepted {message} at {self._timer.current_epoch()}")
+        logging.debug(f"LoadBalancer accepted {message} at {self._timer.current_epoch()}")
 
     def process(self):
         while self._requests:
