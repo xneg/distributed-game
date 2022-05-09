@@ -5,10 +5,11 @@ from timer import Timer
 
 
 class SimulatorLoop(metaclass=Singleton):
-    def __init__(self, objects):
+    def __init__(self, objects, sleep_interval=1.):
         self._objects = []
         self._objects.append(Timer())
         self._objects.extend(objects)
+        self._sleep_interval = sleep_interval
 
     def add_object(self, obj):
         self._objects.append(obj)
@@ -22,4 +23,4 @@ class SimulatorLoop(metaclass=Singleton):
 
             self._objects = [o for o in self._objects if not o.destroyed()]
 
-            time.sleep(1)
+            time.sleep(self._sleep_interval)

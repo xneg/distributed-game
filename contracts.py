@@ -1,6 +1,8 @@
-from dataclasses import dataclass
+import uuid
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
+from uuid import UUID
 
 
 class RequestType(Enum):
@@ -13,6 +15,7 @@ class ClientRequest:
     client: Any
     type: RequestType
     value: int = None
+    id: UUID = field(default_factory=uuid.uuid4, init=False)
 
 
 @dataclass(frozen=True)
@@ -20,3 +23,4 @@ class ClientResponse:
     client: Any
     type: RequestType
     value: Any
+    id: UUID = field(default_factory=uuid.uuid4, init=False)
