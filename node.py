@@ -1,17 +1,17 @@
 from contracts import ClientRequest, ClientResponse, RequestType
-from constant_object import ConstantObject
 from link import Link
 from timer import Timer
 
 
-class Node(ConstantObject):
-    def __init__(self, node_id, is_leader=False):
-        self._node_id = node_id
+class Node:
+    def __init__(self, id, is_leader=False):
+        self._id = id
         self._is_leader = is_leader
         self._messages = []
         self._requests = []
         self._timer = Timer()
         self._storage = {}
+        print(f"Node {self._id} created at {self._timer.current_epoch()}")
 
     def add_message(self, sender, message):
         if isinstance(message, ClientRequest):
@@ -19,7 +19,7 @@ class Node(ConstantObject):
         else:
             self._messages.append((sender, message))
 
-        print(f"Node {self._node_id} accepted {message} at {self._timer.current_epoch()}")
+        print(f"Node {self._id} accepted {message} at {self._timer.current_epoch()}")
 
     def is_leader(self):
         return self._is_leader

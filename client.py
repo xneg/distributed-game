@@ -1,13 +1,12 @@
 import random
 
-from constant_object import ConstantObject
 from contracts import ClientResponse, RequestType, ClientRequest
 from link import Link
 from load_balancer import LoadBalancer
 from timer import Timer
 
 
-class Client(ConstantObject):
+class Client:
     def __init__(self, client_id):
         self._id = client_id
         self._request = None

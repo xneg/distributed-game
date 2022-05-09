@@ -1,11 +1,9 @@
 from client import ClientRequest, ClientResponse
-from constant_object import ConstantObject
 from link import Link
 from singleton import Singleton
 from timer import Timer
 
 
-# class LoadBalancer(ConstantObject, Singleton):
 class LoadBalancer(metaclass=Singleton):
     def __init__(self, nodes):
         self._nodes = nodes

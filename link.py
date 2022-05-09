@@ -1,4 +1,5 @@
 import random
+from functools import partial
 
 from simulator_loop import SimulatorLoop
 
@@ -9,10 +10,7 @@ class Link:
         self._timer = 0
         self._prepared = False
         self._destroyed = False
-        # TODO: try to use callback (currying)
-        self._sender = sender
-        self._recipient = recipient
-        self._message = message
+        self._send_message = partial(self.__send_message, sender, recipient, message)
 
         SimulatorLoop().add_object(self)
 
@@ -24,7 +22,7 @@ class Link:
 
     def process(self):
         if self._timer == self._duration:
-            self._recipient.add_message(self._sender, self._message)
+            self._send_message()
             self._destroyed = True
 
         self._timer = self._timer + 1
@@ -32,5 +30,5 @@ class Link:
     def destroyed(self):
         return self._destroyed
 
-    # def __send_message(self, recipient, message):
-    #     recipient.add_message(message)
+    def __send_message(self, sender, recipient, message):
+        recipient.add_message(sender, message)

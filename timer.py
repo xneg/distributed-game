@@ -1,12 +1,7 @@
-from constant_object import ConstantObject
+from singleton import Singleton
 
 
-class Timer(ConstantObject):
-    def __new__(cls):
-        if not hasattr(cls, 'instance'):
-            cls.instance = super(Timer, cls).__new__(cls)
-        return cls.instance
-
+class Timer(metaclass=Singleton):
     def __init__(self):
         self._epoch = 0
 
