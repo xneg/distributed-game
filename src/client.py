@@ -9,6 +9,8 @@ from timer import Timer
 
 
 class Client:
+    max_pause = 1
+
     def __init__(self, client_id):
         self._id = client_id
         self._request = None
@@ -17,6 +19,8 @@ class Client:
         self._timer = Timer()
         self._checker = ConsistencyChecker()
         self._balancer = LoadBalancer()
+
+        self._send_time = self._get_send_time()
         logging.info(f"Client {self._id} created at {self._timer.current_epoch()}")
 
     def add_message(self, sender, response: ClientResponse):
@@ -33,14 +37,15 @@ class Client:
     def process(self):
         if self._response:
             self._waiting = False
+            self._send_time = self._get_send_time()
         self._response = None
 
-        if not self._waiting:
+        if not self._waiting and self._send_time <= self._timer.current_epoch():
             self._send_request()
 
     def _send_request(self):
         request_type = random.choice(list(RequestType))
-        value = random.randrange(10) if request_type == RequestType.Write else None
+        value = random.randrange(9) + 1 if request_type == RequestType.Write else None
         self._request = ClientRequest(request_type, value)
 
         logging.debug(
@@ -51,3 +56,6 @@ class Client:
             client_id=self._id, request=self._request, time=self._timer.current_epoch()
         )
         self._waiting = True
+
+    def _get_send_time(self):
+        return random.randrange(Client.max_pause) + self._timer.current_epoch()

@@ -10,7 +10,7 @@ def _has_method(o, name):
 
 
 class SimulatorLoop(metaclass=Singleton):
-    def __init__(self, objects, sleep_interval=1.0):
+    def __init__(self, objects=None, sleep_interval=1.0):
         self._objects = objects
         self._sleep_interval = sleep_interval
 

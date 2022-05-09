@@ -1,7 +1,7 @@
 import logging
 
 from singleton import Singleton
-from contracts import RequestType
+from contracts import RequestType, ClientRequest
 from timer import Timer
 
 
@@ -26,10 +26,10 @@ class ConsistencyChecker(metaclass=Singleton):
         for client in self._client_lines:
             (time, event) = self._client_lines[client][-1]
             if time != self._timer.current_epoch():
-                line = line + '|'
+                line = line + ('|' if isinstance(event, ClientRequest) else ' ')
             else:
                 if event.type == RequestType.Read:
-                    line = line + 'R' + str(event.value or '')
+                    line = line + 'R' + str(event.value if event.value is not None else '')
                 else:
                     line = line + 'W' + str(event.value)[0]
             line = line + ' ' * (4 - len(line) % 4)

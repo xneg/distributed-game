@@ -20,7 +20,15 @@ class NodeLogic:
     def _process_request(self, request):
         if request.type == RequestType.Read:
             value = self._storage.get("x", None)
-            self._send_response(ClientResponse(type=RequestType.Read, value=value or "N", id=request.id))
+            self._send_response(
+                ClientResponse(
+                    type=RequestType.Read,
+                    value=value if value is not None else "N",
+                    id=request.id,
+                )
+            )
         else:
             self._storage["x"] = request.value
-            self._send_response(ClientResponse(type=RequestType.Write, value="SUCCESS", id=request.id))
+            self._send_response(
+                ClientResponse(type=RequestType.Write, value="+", id=request.id)
+            )
