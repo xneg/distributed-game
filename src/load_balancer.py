@@ -9,7 +9,7 @@ from timer import Timer
 class LoadBalancer(metaclass=Singleton):
     def __init__(self, nodes=None):
         self._nodes = nodes
-        self._leader_node = next(iter([n for n in nodes if n.is_leader()]), None)
+        self._leader_node = next(iter([n for n in nodes if n.is_leader]), None)
         self._timer = Timer()
         self._requests = []
         self._responses = []
