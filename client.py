@@ -17,7 +17,7 @@ class Client(ConstantObject):
         # TODO: replace print with logger
         print(f"Client {self._id} created at {self._timer.current_epoch()}")
 
-    def add_message(self, response: ClientResponse):
+    def add_message(self, sender, response: ClientResponse):
         print(f"Client {self._id} received {response} at {self._timer.current_epoch()}")
         self._response = response
         if self._response.type != self._request.type:
@@ -39,5 +39,5 @@ class Client(ConstantObject):
         print(
             f"Client {self._id} sent {self._request} at {self._timer.current_epoch()}"
         )
-        Link(LoadBalancer(), self._request)
+        Link(self, LoadBalancer(), self._request)
         self._waiting = True

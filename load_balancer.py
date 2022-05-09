@@ -17,7 +17,7 @@ class LoadBalancer(metaclass=Singleton):
 
         print(f"LoadBalancer created at {self._timer.current_epoch()}")
 
-    def add_message(self, message):
+    def add_message(self, sender, message):
         if isinstance(message, ClientRequest):
             self._requests.append(message)
         elif isinstance(message, ClientResponse):
@@ -32,7 +32,7 @@ class LoadBalancer(metaclass=Singleton):
         self._requests = []
 
         for response in self._responses:
-            Link(response.client, response)
+            Link(self, response.client, response)
 
         self._responses = []
 
@@ -45,7 +45,7 @@ class LoadBalancer(metaclass=Singleton):
     def _process_request(self, request):
         target_node = self._leader_node if self._leader_node else self._round_robin()
         # TODO: should not pass client reference (maybe even id)
-        Link(target_node, request)
+        Link(self, target_node, request)
 
     def _round_robin(self):
         # TODO: check it

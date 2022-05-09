@@ -13,7 +13,7 @@ class Node(ConstantObject):
         self._timer = Timer()
         self._storage = {}
 
-    def add_message(self, message):
+    def add_message(self, sender, message):
         if isinstance(message, ClientRequest):
             self._requests.append(message)
         else:
@@ -33,7 +33,7 @@ class Node(ConstantObject):
     def process_request(self, request):
         if request.type == RequestType.Read:
             value = self._storage.get("x", None)
-            Link(request.client, ClientResponse(request.client, RequestType.Read, value))
+            Link(self, request.client, ClientResponse(request.client, RequestType.Read, value))
         else:
             self._storage["x"] = request.value
-            Link(request.client, ClientResponse(request.client, RequestType.Write, "SUCCESS"))
+            Link(self, request.client, ClientResponse(request.client, RequestType.Write, "SUCCESS"))
