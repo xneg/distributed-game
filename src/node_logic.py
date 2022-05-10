@@ -1,23 +1,28 @@
+from dataclasses import dataclass
+
 from contracts import RequestType, ClientResponse
+
+
+@dataclass
+class Ping:
+    sender_id: int
+
+
+@dataclass
+class Ack:
+    sender_id: int
 
 
 class NodeLogic:
     def __init__(self, node):
+        self._id = node.id
         self._send_response = node.send_response
         self._send_message = node.send_message
-        self._requests = node.requests
-        self._messages = node.messages
         self._storage = node.storage
         self._is_leader = node.is_leader
+        self._other_nodes = node.other_nodes
 
-    def process(self):
-        while self._requests:
-            request = self._requests.pop(0)
-            self._process_request(request)
-
-        self._messages = []
-
-    def _process_request(self, request):
+    def process_request(self, request):
         if request.type == RequestType.Read:
             value = self._storage.get("x", None)
             self._send_response(
@@ -32,3 +37,7 @@ class NodeLogic:
             self._send_response(
                 ClientResponse(type=RequestType.Write, value="+", id=request.id)
             )
+
+    def process_message(self, message):
+        if isinstance(message, Ping):
+            self._send_message(message.sender_id, Ack(sender_id=self._id))

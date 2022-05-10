@@ -1,3 +1,4 @@
+import json
 import logging
 
 from contracts import ClientRequest
@@ -16,8 +17,9 @@ class Node:
         self._requests = []
         self._waiting_responses = {}
         self._storage = {}
-        self._logic = NodeLogic(self)
         self._other_nodes = {}
+
+        self._logic = NodeLogic(self)
 
         logging.info(f"Node {self._id} created at {self._timer.current_epoch()}")
 
@@ -30,12 +32,18 @@ class Node:
             self._waiting_responses[message.id] = sender
             self._requests.append(message)
         else:
-            self._messages.append((sender, message))
+            self._messages.append(message)
 
         logging.debug(f"Node {self._id} accepted {message} at {self._timer.current_epoch()}")
 
     def process(self):
-        self._logic.process()
+        while self._requests:
+            request = self._requests.pop(0)
+            self._logic.process_request(request)
+
+        while self._messages:
+            message = self._messages.pop(0)
+            self._logic.process_message(message)
 
     def send_response(self, response):
         if response.id not in self._waiting_responses:
@@ -47,7 +55,7 @@ class Node:
         if node_id not in self._other_nodes:
             raise Exception(f"Node with id {node_id} doesn't exists!")
 
-        Link(self, self._other_nodes[node_id], message)
+        Link(self, self._other_nodes[node_id], json.dumps(message))
 
     @property
     def id(self):
@@ -58,13 +66,9 @@ class Node:
         return self._is_leader
 
     @property
-    def requests(self):
-        return self._requests
-
-    @property
     def storage(self):
         return self._storage
 
     @property
-    def messages(self):
-        return self._messages
+    def other_nodes(self):
+        return self._other_nodes.keys()
