@@ -22,3 +22,17 @@ class ClientResponse:
     type: RequestType
     value: Any
     id: UUID
+
+
+def make_timer():
+    registry = []
+
+    def reg(interval):
+        def inner(func):
+            registry.append((func, interval))
+            return func
+
+        reg.all = registry
+        return inner
+
+    return reg

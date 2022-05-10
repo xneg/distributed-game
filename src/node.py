@@ -1,3 +1,4 @@
+import dataclasses
 import json
 import logging
 
@@ -19,7 +20,16 @@ class Node:
         self._storage = {}
         self._other_nodes = {}
 
-        self._logic = NodeLogic(self)
+        self._logic = NodeLogic(
+            id=self.id,
+            send_response=self.send_response,
+            send_message=self.send_message,
+            storage=self.storage,
+            is_leader=self.is_leader,
+            other_nodes=self.other_nodes,
+        )
+
+        self._timer_handlers = self._logic.timer.all
 
         logging.info(f"Node {self._id} created at {self._timer.current_epoch()}")
 
@@ -34,7 +44,9 @@ class Node:
         else:
             self._messages.append(message)
 
-        logging.debug(f"Node {self._id} accepted {message} at {self._timer.current_epoch()}")
+        logging.debug(
+            f"Node {self._id} accepted {message} at {self._timer.current_epoch()}"
+        )
 
     def process(self):
         while self._requests:
@@ -44,6 +56,10 @@ class Node:
         while self._messages:
             message = self._messages.pop(0)
             self._logic.process_message(message)
+
+        for (handler, interval) in self._timer_handlers:
+            if self._timer.current_epoch() % interval == 0:
+                handler(self._logic)
 
     def send_response(self, response):
         if response.id not in self._waiting_responses:
@@ -55,7 +71,7 @@ class Node:
         if node_id not in self._other_nodes:
             raise Exception(f"Node with id {node_id} doesn't exists!")
 
-        Link(self, self._other_nodes[node_id], json.dumps(message))
+        Link(self, self._other_nodes[node_id], message) # json.dumps(message))
 
     @property
     def id(self):

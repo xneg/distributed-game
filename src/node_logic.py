@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from contracts import RequestType, ClientResponse
+from contracts import RequestType, ClientResponse, make_timer
 
 
 @dataclass
@@ -14,13 +14,17 @@ class Ack:
 
 
 class NodeLogic:
-    def __init__(self, node):
-        self._id = node.id
-        self._send_response = node.send_response
-        self._send_message = node.send_message
-        self._storage = node.storage
-        self._is_leader = node.is_leader
-        self._other_nodes = node.other_nodes
+    timer = make_timer()
+
+    def __init__(
+        self, id, send_response, send_message, storage, is_leader, other_nodes
+    ):
+        self._id = id
+        self._send_response = send_response
+        self._send_message = send_message
+        self._storage = storage
+        self._is_leader = is_leader
+        self._other_nodes = other_nodes
 
     def process_request(self, request):
         if request.type == RequestType.Read:
@@ -41,3 +45,10 @@ class NodeLogic:
     def process_message(self, message):
         if isinstance(message, Ping):
             self._send_message(message.sender_id, Ack(sender_id=self._id))
+        elif isinstance(message, Ack):
+            print(f"Node {self._id} received ack from {message.sender_id}")
+
+    @timer(interval=10)
+    def some_timer(self):
+        for node in self._other_nodes:
+            self._send_message(node, Ping(sender_id=self._id))
