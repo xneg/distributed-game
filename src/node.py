@@ -48,8 +48,8 @@ class Node:
     def send_response(self, response):
         if response.id not in self._waiting_responses:
             raise Exception("You response not to your request!")
-        load_balancer = self._waiting_responses.pop(response.id)
-        Link(self, load_balancer, response)
+        gateway = self._waiting_responses.pop(response.id)
+        Link(self, gateway, response)
 
     def send_message(self, node_id, message):
         if node_id not in self._other_nodes:

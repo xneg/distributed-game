@@ -4,7 +4,7 @@ from enum import Enum
 
 from contracts import ClientResponse, RequestType, ClientRequest
 from link import Link
-from load_balancer import LoadBalancer
+from gateway import Gateway
 from consistency_checker import ConsistencyChecker
 from simulator_loop import SimulatorLoop
 from timer import Timer
@@ -27,7 +27,7 @@ class Client:
         self._waiting = False
         self._timer = Timer()
         self._checker = ConsistencyChecker()
-        self._balancer = LoadBalancer()
+        self._balancer = Gateway()
 
         self._send_time = self._get_send_time()
         logging.info(f"Client {self._id} created at {self._timer.current_epoch()}")

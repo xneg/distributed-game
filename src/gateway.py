@@ -6,7 +6,7 @@ from singleton import Singleton
 from timer import Timer
 
 
-class LoadBalancer(metaclass=Singleton):
+class Gateway(metaclass=Singleton):
     def __init__(self, nodes=None):
         self._nodes = nodes
         self._leader_node = next(iter([n for n in nodes if n.is_leader]), None)
