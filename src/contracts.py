@@ -25,6 +25,29 @@ class ClientResponse:
     id: UUID
 
 
+class MessagePacket:
+    def __init__(self, message):
+        self._message = message
+        self._id = uuid.uuid4()
+
+    @property
+    def message(self):
+        return self._message
+
+    @property
+    def id(self):
+        return self._id
+
+
+class MessageAck:
+    def __init__(self, message_packet: MessagePacket):
+        self._id = message_packet.id
+
+    @property
+    def id(self):
+        return self._id
+
+
 def make_timer():
     registry = []
 

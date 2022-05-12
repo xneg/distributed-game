@@ -44,14 +44,15 @@ class NodeLogic:
         else:
             # print(f"Write request on {self._id}")
             self._storage["x"] = request.value
-            # channels = []
-            #
-            # for node in self._other_nodes:
-            #     channels.append(self._create_channel(node, Ping(sender_id=self._id)).wait())
-            # for c in channels:
-            #     yield from c
-            #
-            # print(f"Send response on {self._id}")
+            channels = []
+
+            for node in self._other_nodes:
+                channels.append(self._create_channel(node, Ping(sender_id=self._id)).wait())
+
+            for c in channels:
+                yield from c
+
+            print(f"Send response on {self._id}")
             self._send_response(
                 ClientResponse(type=RequestType.Write, value="+", id=request.id)
             )

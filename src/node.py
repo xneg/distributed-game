@@ -1,6 +1,6 @@
 import logging
 
-from contracts import ClientRequest
+from contracts import ClientRequest, MessageAck, MessagePacket
 from link import Link
 from node_logic import NodeLogic
 from timer import Timer
@@ -11,19 +11,11 @@ class Channel:
         self._node = node
         self._node_id = node_id
         self._message = message
-        self._node.send_message(node_id=self._node_id, message=self._message)
 
     def wait(self):
-        self._node.send_message(node_id=self._node_id, message=self._message)
-        while not self._check_response(message_id=self._message.id):
+        # TODO: Need to add timeout or other break conditions
+        while self._message.id in self._node._channel_messages:
             yield print(f"processing {self._message.id}")
-
-    # TODO: Need to add timeout or other break conditions
-    def _check_response(self, message_id):
-        x = next((m for m in self._node._messages if m.id == message_id), None)
-        if x is not None:
-            print(f"Strange message {x}")
-        return x
 
 
 class Node:
@@ -50,6 +42,7 @@ class Node:
 
         self._timer_handlers = [] # self._logic.timer.all
         self._generators = []
+        self._channel_messages = {}
 
         logging.info(f"Node {self._id} created at {self._timer.current_epoch()}")
 
@@ -61,8 +54,11 @@ class Node:
         if isinstance(message, ClientRequest):
             self._waiting_responses[message.id] = sender
             self._requests.append(message)
-        else:
-            self._messages.append(message)
+        elif isinstance(message, MessageAck):
+            del self._channel_messages[message.id]
+        elif isinstance(message, MessagePacket):
+            self._messages.append(message.message)
+            Link(sender=self, recipient=sender, message=MessageAck(message))
 
         logging.debug(
             f"Node {self._id} accepted {message} at {self._timer.current_epoch()}"
@@ -100,7 +96,10 @@ class Node:
         Link(self, self._other_nodes[node_id], message) # json.dumps(message))
 
     def create_channel(self, node_id, message):
-        return Channel(self, node_id, message)
+        packet = MessagePacket(message)
+        self._channel_messages[packet.id] = {}
+        self.send_message(node_id=node_id, message=packet)
+        return Channel(self, node_id, packet)
 
     @property
     def id(self):
