@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from contracts import RequestType, ClientResponse, make_timer
+from contracts import RequestType, ClientResponse, make_timer, generator
 
 
 @dataclass
@@ -26,9 +26,11 @@ class NodeLogic:
         self._is_leader = is_leader
         self._other_nodes = other_nodes
 
+    @generator
     def process_request(self, request):
         if request.type == RequestType.Read:
             value = self._storage.get("x", None)
+            yield
             self._send_response(
                 ClientResponse(
                     type=RequestType.Read,
@@ -38,10 +40,12 @@ class NodeLogic:
             )
         else:
             self._storage["x"] = request.value
+            yield
             self._send_response(
                 ClientResponse(type=RequestType.Write, value="+", id=request.id)
             )
 
+    @generator
     def process_message(self, message):
         if isinstance(message, Ping):
             self._send_message(message.sender_id, Ack(sender_id=self._id))

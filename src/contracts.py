@@ -1,3 +1,4 @@
+import inspect
 import uuid
 from dataclasses import dataclass, field
 from enum import Enum
@@ -36,3 +37,13 @@ def make_timer():
         return inner
 
     return reg
+
+
+def generator(func):
+    def wrapper(*a, **ka):
+        if not inspect.isgeneratorfunction(func):
+            func(*a, **ka)
+            yield
+        else:
+            yield from func(*a, **ka)
+    return wrapper

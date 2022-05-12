@@ -1,5 +1,3 @@
-import dataclasses
-import json
 import logging
 
 from contracts import ClientRequest
@@ -30,6 +28,7 @@ class Node:
         )
 
         self._timer_handlers = self._logic.timer.all
+        self._generators = []
 
         logging.info(f"Node {self._id} created at {self._timer.current_epoch()}")
 
@@ -51,11 +50,17 @@ class Node:
     def process(self):
         while self._requests:
             request = self._requests.pop(0)
-            self._logic.process_request(request)
+            self._generators.append(self._logic.process_request(request))
 
         while self._messages:
             message = self._messages.pop(0)
-            self._logic.process_message(message)
+            self._generators.append(self._logic.process_message(message))
+
+        for g in self._generators.copy():
+            try:
+                next(g)
+            except StopIteration:
+                self._generators.remove(g)
 
         for (handler, interval) in self._timer_handlers:
             if self._timer.current_epoch() % interval == 0:
