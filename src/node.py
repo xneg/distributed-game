@@ -6,6 +6,26 @@ from node_logic import NodeLogic
 from timer import Timer
 
 
+class Channel:
+    def __init__(self, node, node_id, message):
+        self._node = node
+        self._node_id = node_id
+        self._message = message
+        self._node.send_message(node_id=self._node_id, message=self._message)
+
+    def wait(self):
+        self._node.send_message(node_id=self._node_id, message=self._message)
+        while not self._check_response(message_id=self._message.id):
+            yield print(f"processing {self._message.id}")
+
+    # TODO: Need to add timeout or other break conditions
+    def _check_response(self, message_id):
+        x = next((m for m in self._node._messages if m.id == message_id), None)
+        if x is not None:
+            print(f"Strange message {x}")
+        return x
+
+
 class Node:
     def __init__(self, node_id, is_leader=False):
         self._id = node_id
@@ -22,12 +42,13 @@ class Node:
             id=self.id,
             send_response=self.send_response,
             send_message=self.send_message,
+            create_channel=self.create_channel,
             storage=self.storage,
             is_leader=self.is_leader,
             other_nodes=self.other_nodes,
         )
 
-        self._timer_handlers = self._logic.timer.all
+        self._timer_handlers = [] # self._logic.timer.all
         self._generators = []
 
         logging.info(f"Node {self._id} created at {self._timer.current_epoch()}")
@@ -77,6 +98,9 @@ class Node:
             raise Exception(f"Node with id {node_id} doesn't exists!")
 
         Link(self, self._other_nodes[node_id], message) # json.dumps(message))
+
+    def create_channel(self, node_id, message):
+        return Channel(self, node_id, message)
 
     @property
     def id(self):
