@@ -14,8 +14,8 @@ class Channel:
 
     def wait(self):
         # TODO: Need to add timeout or other break conditions
-        while self._message.id in self._node._channel_messages:
-            yield print(f"processing {self._message.id}")
+        while self._message.id in self._node._channels:
+            yield  # print(f"processing {self._message.id}")
 
 
 class Node:
@@ -40,9 +40,9 @@ class Node:
             other_nodes=self.other_nodes,
         )
 
-        self._timer_handlers = [] # self._logic.timer.all
+        self._timer_handlers = []  # self._logic.timer.all
         self._generators = []
-        self._channel_messages = {}
+        self._channels = set()
 
         logging.info(f"Node {self._id} created at {self._timer.current_epoch()}")
 
@@ -55,7 +55,7 @@ class Node:
             self._waiting_responses[message.id] = sender
             self._requests.append(message)
         elif isinstance(message, MessageAck):
-            del self._channel_messages[message.id]
+            self._channels.remove(message.id)
         elif isinstance(message, MessagePacket):
             self._messages.append(message.message)
             Link(sender=self, recipient=sender, message=MessageAck(message))
@@ -89,17 +89,18 @@ class Node:
         gateway = self._waiting_responses.pop(response.id)
         Link(self, gateway, response)
 
-    def send_message(self, node_id, message):
+    def create_channel(self, node_id, message):
         if node_id not in self._other_nodes:
             raise Exception(f"Node with id {node_id} doesn't exists!")
 
-        Link(self, self._other_nodes[node_id], message) # json.dumps(message))
-
-    def create_channel(self, node_id, message):
         packet = MessagePacket(message)
-        self._channel_messages[packet.id] = {}
-        self.send_message(node_id=node_id, message=packet)
+        self._channels.add(packet.id)
+        Link(self, self._other_nodes[node_id], packet)  # json.dumps(message))
+
         return Channel(self, node_id, packet)
+
+    def send_message(self, node_id, message):
+        self.create_channel(node_id, message)
 
     @property
     def id(self):

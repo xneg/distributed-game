@@ -42,7 +42,7 @@ class NodeLogic:
                 )
             )
         else:
-            # print(f"Write request on {self._id}")
+            print(f"Write request on {self._id}")
             self._storage["x"] = request.value
             channels = []
 
