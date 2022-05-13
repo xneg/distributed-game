@@ -59,6 +59,8 @@ def make_timer():
         reg.all = registry
         return inner
 
+    reg.all = reg.all if hasattr(reg, 'all') else []
+
     return reg
 
 

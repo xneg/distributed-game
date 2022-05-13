@@ -40,7 +40,7 @@ class Node:
             other_nodes=self.other_nodes,
         )
 
-        self._timer_handlers = []  # self._logic.timer.all
+        self._timer_handlers = self._logic.timer.all
         self._generators = []
         self._channels = set()
 
@@ -73,15 +73,15 @@ class Node:
             message = self._messages.pop(0)
             self._generators.append(self._logic.process_message(message))
 
+        for (handler, interval) in self._timer_handlers:
+            if self._timer.current_epoch() % interval == 0:
+                self._generators.append(handler(self._logic))
+
         for g in self._generators.copy():
             try:
                 next(g)
             except StopIteration:
                 self._generators.remove(g)
-
-        for (handler, interval) in self._timer_handlers:
-            if self._timer.current_epoch() % interval == 0:
-                handler(self._logic)
 
     def send_response(self, response):
         if response.id not in self._waiting_responses:

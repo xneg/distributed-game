@@ -64,7 +64,14 @@ class NodeLogic:
         elif isinstance(message, Ack):
             print(f"Node {self._id} received ack from {message.sender_id}")
 
-    # @timer(interval=10)
-    # def some_timer(self):
-    #     for node in self._other_nodes:
-    #         self._send_message(node, Ping(sender_id=self._id))
+    @timer(interval=5)
+    @generator
+    def some_timer(self):
+        print(f"Node {self._id} timer fired")
+
+    @timer(interval=10)
+    @generator
+    def second_timer(self):
+        print(f"Node {self._id} AAAAAAAAAAAAAAA")
+        # for node in self._other_nodes:
+        #     self._send_message(node, Ping(sender_id=self._id))
