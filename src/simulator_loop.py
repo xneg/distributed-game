@@ -1,9 +1,5 @@
 import time
-import logging
-
-from consistency_checker import ConsistencyChecker
 from singleton import Singleton
-from timer import Timer
 
 
 def _has_method(o, name):
@@ -11,8 +7,10 @@ def _has_method(o, name):
 
 
 class SimulatorLoop(metaclass=Singleton):
-    def __init__(self, objects=None, sleep_interval=1.0):
-        self._objects = objects
+    def __init__(self, timer=None, consistency_checker=None, objects=None, sleep_interval=1.0):
+        self._timer = timer
+        self._consistency_checker = consistency_checker
+        self._objects = objects if objects else []
         self._sleep_interval = sleep_interval
 
     def add_object(self, obj):
@@ -20,14 +18,19 @@ class SimulatorLoop(metaclass=Singleton):
 
     def loop(self):
         while True:
-            Timer().process()
+            self.process()
 
-            for o in self._objects.copy():
-                o.process()
-                if _has_method(o, "destroyed") and o.destroyed():
-                    self._objects.remove(o)
+            if self._sleep_interval > 0:
+                time.sleep(self._sleep_interval)
 
-            ConsistencyChecker().process()
+    def process(self):
+        if self._timer:
+            self._timer.process()
 
-            time.sleep(self._sleep_interval)
-            logging.debug(f"Total objects count {len(self._objects)}")
+        for o in self._objects.copy():
+            o.process()
+            if _has_method(o, "destroyed") and o.destroyed():
+                self._objects.remove(o)
+
+        if self._consistency_checker:
+            self._consistency_checker.process()
