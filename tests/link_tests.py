@@ -1,3 +1,5 @@
+import pytest
+
 from link import Link
 from simulator_loop import SimulatorLoop
 
@@ -14,10 +16,19 @@ class Recipient:
         self.mailbox = (sender, message)
 
 
-def test_message_delivered():
+@pytest.fixture
+def setup():
     simulator_loop = SimulatorLoop(sleep_interval=0)
     sender = Sender()
     recipient = Recipient()
+
+    assert simulator_loop.objects_count == 0
+    return simulator_loop, sender, recipient
+
+
+def test_message_delivered(setup):
+    simulator_loop, sender, recipient = setup
+
     Link(sender, recipient, "Hello!", 5)
 
     for i in range(0, 6):
@@ -26,3 +37,15 @@ def test_message_delivered():
 
     assert recipient.mailbox == (sender, "Hello!")
 
+
+def test_link_destroyed_after_message_delivered(setup):
+    simulator_loop, sender, recipient = setup
+
+    Link(sender, recipient, "Hello!", 5)
+
+    assert simulator_loop.objects_count == 1
+
+    for i in range(0, 6):
+        simulator_loop.process()
+
+    assert simulator_loop.objects_count == 0
