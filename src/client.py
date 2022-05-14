@@ -11,23 +11,23 @@ from timer import Timer
 
 
 class ClientType(Enum):
-    Read = 1,
-    Write = 2,
+    Read = (1,)
+    Write = (2,)
     Both = 3
 
 
 class Client:
     max_pause = 1
 
-    def __init__(self, client_id, client_type=ClientType.Both):
+    def __init__(self, timer, gateway, checker, client_id, client_type=ClientType.Both):
+        self._timer = timer
+        self._gateway = gateway
+        self._checker = checker
         self._id = client_id
         self._type = client_type
         self._request = None
         self._response = None
         self._waiting = False
-        self._timer = Timer()
-        self._checker = ConsistencyChecker()
-        self._gateway = Gateway()
 
         self._send_time = self._get_send_time()
         logging.info(f"Client {self._id} created at {self._timer.current_epoch()}")
@@ -81,6 +81,12 @@ class ClientFactory:
 
     def add_client(self, client_type: ClientType = ClientType.Both):
         SimulatorLoop().add_object(
-            Client(client_id=self._current_id, client_type=client_type)
+            Client(
+                timer=Timer(),
+                gateway=Gateway(),
+                checker=ConsistencyChecker(),
+                client_id=self._current_id,
+                client_type=client_type,
+            )
         )
         self._current_id = self._current_id + 1
