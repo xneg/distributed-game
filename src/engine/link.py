@@ -1,7 +1,7 @@
 import random
 from functools import partial
 
-from simulator_loop import SimulatorLoop
+from engine.simulator_loop import SimulatorLoop
 
 
 class Link:

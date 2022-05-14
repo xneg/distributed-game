@@ -2,12 +2,12 @@ import logging
 import random
 from enum import Enum
 
-from contracts import ClientResponse, RequestType, ClientRequest
-from link import Link
-from gateway import Gateway
-from consistency_checker import ConsistencyChecker
-from simulator_loop import SimulatorLoop
-from timer import Timer
+from engine.contracts import ClientResponse, RequestType, ClientRequest
+from engine.link import Link
+from engine.gateway import Gateway
+from engine.consistency_checker import ConsistencyChecker
+from engine.simulator_loop import SimulatorLoop
+from engine.timer import Timer
 
 
 class ClientType(Enum):

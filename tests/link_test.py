@@ -1,4 +1,4 @@
-from link import Link
+from engine.link import Link
 
 
 def test_message_delivered(setup):

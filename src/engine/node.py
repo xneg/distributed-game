@@ -1,9 +1,9 @@
 import logging
 
-from contracts import ClientRequest, MessageAck, MessagePacket
-from link import Link
-from node_logic import NodeLogic
-from timer import Timer
+from engine.contracts import ClientRequest, MessageAck, MessagePacket
+from engine.link import Link
+from engine.node_logic import NodeLogic
+from engine.timer import Timer
 
 
 class Channel:

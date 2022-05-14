@@ -1,8 +1,8 @@
 import logging
 
-from singleton import Singleton
-from contracts import RequestType, ClientRequest
-from timer import Timer
+from engine.singleton import Singleton
+from engine.contracts import RequestType, ClientRequest
+from engine.timer import Timer
 
 
 class ConsistencyChecker(metaclass=Singleton):

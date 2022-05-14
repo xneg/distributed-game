@@ -1,12 +1,12 @@
 import logging
 
-from client import Client, ClientFactory, ClientType
-from consistency_checker import ConsistencyChecker
-from link import Link
-from gateway import Gateway
-from node import Node
-from simulator_loop import SimulatorLoop
-from timer import Timer
+from engine.client import Client, ClientFactory
+from engine.consistency_checker import ConsistencyChecker
+from engine.link import Link
+from engine.gateway import Gateway
+from engine.node import Node
+from engine.simulator_loop import SimulatorLoop
+from engine.timer import Timer
 
 logging.basicConfig()
 # logging.getLogger().setLevel(logging.DEBUG)

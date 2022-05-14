@@ -1,4 +1,4 @@
-from singleton import Singleton
+from engine.singleton import Singleton
 
 
 class Timer(metaclass=Singleton):

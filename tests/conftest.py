@@ -1,7 +1,7 @@
 import pytest
 
-from simulator_loop import SimulatorLoop
-from timer import Timer
+from engine.simulator_loop import SimulatorLoop
+from engine.timer import Timer
 
 
 class Sender:

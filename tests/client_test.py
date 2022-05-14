@@ -2,10 +2,10 @@ import uuid
 
 import pytest
 
-from client import Client, ClientType
-from contracts import ClientRequest, RequestType, ClientResponse
-from link import Link
-from timer import Timer
+from engine.client import Client, ClientType
+from engine.contracts import ClientRequest, RequestType, ClientResponse
+from engine.link import Link
+from engine.timer import Timer
 
 
 class Checker:

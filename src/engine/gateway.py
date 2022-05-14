@@ -1,9 +1,9 @@
 import logging
 
-from client import ClientRequest, ClientResponse
-from link import Link
-from singleton import Singleton
-from timer import Timer
+from engine.client import ClientRequest, ClientResponse
+from engine.link import Link
+from engine.singleton import Singleton
+from engine.timer import Timer
 
 
 class Gateway(metaclass=Singleton):

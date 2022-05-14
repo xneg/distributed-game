@@ -1,5 +1,5 @@
 import time
-from singleton import Singleton
+from engine.singleton import Singleton
 
 
 def _has_method(o, name):

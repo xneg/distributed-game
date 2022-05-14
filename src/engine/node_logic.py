@@ -2,7 +2,7 @@ import uuid
 from dataclasses import dataclass, field
 from uuid import UUID
 
-from contracts import RequestType, ClientResponse, make_timer, generator
+from engine.contracts import RequestType, ClientResponse, make_timer, generator
 
 
 @dataclass
