@@ -25,30 +25,28 @@ class Client:
         self._checker = checker
         self._id = client_id
         self._type = client_type
-        self._request = None
-        self._response = None
+        self._pending_request = None
         self._waiting = False
 
         self._send_time = self._get_send_time()
         logging.info(f"Client {self._id} created at {self._timer.current_epoch()}")
 
-    def add_message(self, sender, response: ClientResponse):
+    def add_message(self, _, response: ClientResponse):
         logging.debug(
             f"Client {self._id} received {response} at {self._timer.current_epoch()}"
         )
-        self._response = response
+
+        if response.type != self._pending_request.type:
+            raise TypeError("Response type doesn't correspond request type!")
+
         self._checker.add_response(
             client_id=self._id, response=response, time=self._timer.current_epoch()
         )
-        if self._response.type != self._request.type:
-            raise TypeError("Response type doesn't correspond request type!")
+
+        self._waiting = False
+        self._send_time = self._get_send_time()
 
     def process(self):
-        if self._response:
-            self._waiting = False
-            self._send_time = self._get_send_time()
-            self._response = None
-
         if not self._waiting and self._send_time <= self._timer.current_epoch():
             self._send_request()
 
@@ -60,14 +58,14 @@ class Client:
             request_type = RequestType.Write
 
         value = random.randrange(9) + 1 if request_type == RequestType.Write else None
-        self._request = ClientRequest(request_type, value)
+        self._pending_request = ClientRequest(request_type, value)
 
         logging.debug(
-            f"Client {self._id} sent {self._request} at {self._timer.current_epoch()}"
+            f"Client {self._id} sent {self._pending_request} at {self._timer.current_epoch()}"
         )
-        Link(self, self._gateway, self._request)
+        Link(self, self._gateway, self._pending_request)
         self._checker.add_request(
-            client_id=self._id, request=self._request, time=self._timer.current_epoch()
+            client_id=self._id, request=self._pending_request, time=self._timer.current_epoch()
         )
         self._waiting = True
 

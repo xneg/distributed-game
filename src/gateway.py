@@ -40,7 +40,7 @@ class Gateway(metaclass=Singleton):
     def _process_response(self, sender, response):
         if response.id in self._waiting_responses:
             wait = self._waiting_responses.pop(response.id)
-            #  additionaly check that response received from exact node
+            #  additional check that response received from exact node
             Link(self, wait["client"], response)
 
     def _process_request(self, sender, request):
