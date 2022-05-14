@@ -16,7 +16,7 @@ class Gateway(metaclass=Singleton):
         self._waiting_responses = {}
         self._round_robin_counter = 0
 
-        logging.info(f"LoadBalancer created at {self._timer.current_epoch()}")
+        logging.info(f"Gateway created at {self._timer.current_epoch()}")
 
     def add_message(self, sender, message):
         if isinstance(message, ClientRequest):
@@ -25,7 +25,7 @@ class Gateway(metaclass=Singleton):
             self._responses.append((sender, message))
 
         logging.debug(
-            f"LoadBalancer accepted {message} at {self._timer.current_epoch()}"
+            f"Gateway accepted {message} at {self._timer.current_epoch()}"
         )
 
     def process(self):

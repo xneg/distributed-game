@@ -27,7 +27,7 @@ class Client:
         self._waiting = False
         self._timer = Timer()
         self._checker = ConsistencyChecker()
-        self._balancer = Gateway()
+        self._gateway = Gateway()
 
         self._send_time = self._get_send_time()
         logging.info(f"Client {self._id} created at {self._timer.current_epoch()}")
@@ -65,7 +65,7 @@ class Client:
         logging.debug(
             f"Client {self._id} sent {self._request} at {self._timer.current_epoch()}"
         )
-        Link(self, self._balancer, self._request)
+        Link(self, self._gateway, self._request)
         self._checker.add_request(
             client_id=self._id, request=self._request, time=self._timer.current_epoch()
         )

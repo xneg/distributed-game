@@ -22,7 +22,7 @@ def setup():
     sender = Sender()
     recipient = Recipient()
 
-    assert simulator_loop.objects_count == 0
+    assert simulator_loop.objects == []
     return simulator_loop, sender, recipient
 
 
@@ -41,11 +41,11 @@ def test_message_delivered(setup):
 def test_link_destroyed_after_message_delivered(setup):
     simulator_loop, sender, recipient = setup
 
-    Link(sender, recipient, "Hello!", 5)
+    link = Link(sender, recipient, "Hello!", 5)
 
-    assert simulator_loop.objects_count == 1
+    assert link in simulator_loop.objects
 
     for i in range(0, 6):
         simulator_loop.process()
 
-    assert simulator_loop.objects_count == 0
+    assert simulator_loop.objects == []

@@ -36,5 +36,5 @@ class SimulatorLoop(metaclass=Singleton):
             self._consistency_checker.process()
 
     @property
-    def objects_count(self):
-        return len(self._objects)
+    def objects(self):
+        return self._objects
