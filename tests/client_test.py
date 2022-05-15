@@ -5,7 +5,6 @@ import pytest
 from engine.client import Client, ClientType
 from engine.contracts import ClientRequest, RequestType, ClientResponse
 from engine.link import Link
-from engine.timer import Timer
 
 
 class Checker:
@@ -27,9 +26,9 @@ def client_test_setup(setup):
 
 
 def test_client_sends_messages(client_test_setup):
-    simulator_loop, _, recipient, checker = client_test_setup
+    simulator_loop, timer, _, recipient, checker = client_test_setup
     client = Client(
-        timer=Timer(),
+        timer=timer,
         gateway=recipient,
         checker=checker,
         client_id=1,
@@ -51,9 +50,9 @@ def test_client_sends_messages(client_test_setup):
 
 
 def test_client_process_response(client_test_setup):
-    simulator_loop, _, recipient, checker = client_test_setup
+    simulator_loop, timer, _, recipient, checker = client_test_setup
     client = Client(
-        timer=Timer(),
+        timer=timer,
         gateway=recipient,
         checker=checker,
         client_id=1,
@@ -69,9 +68,9 @@ def test_client_process_response(client_test_setup):
 
 
 def test_client_process_wrong_type_response(client_test_setup):
-    simulator_loop, _, recipient, checker = client_test_setup
+    simulator_loop, timer, _, recipient, checker = client_test_setup
     client = Client(
-        timer=Timer(),
+        timer=timer,
         gateway=recipient,
         checker=checker,
         client_id=1,

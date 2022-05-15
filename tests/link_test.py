@@ -1,9 +1,8 @@
 from engine.link import Link
-from engine.timer import Timer
 
 
 def test_message_delivered_in_time(setup):
-    simulator_loop, sender, recipient = setup
+    simulator_loop, timer, sender, recipient = setup
 
     Link(sender, recipient, "Hello!", 5)
 
@@ -12,11 +11,11 @@ def test_message_delivered_in_time(setup):
         simulator_loop.process()
 
     assert recipient.mailbox == (sender, "Hello!")
-    assert Timer().current_epoch() == 5
+    assert timer.current_epoch() == 5
 
 
 def test_link_destroyed_after_message_delivered(setup):
-    simulator_loop, sender, recipient = setup
+    simulator_loop, _, sender, recipient = setup
 
     link = Link(sender, recipient, "Hello!", 5)
 

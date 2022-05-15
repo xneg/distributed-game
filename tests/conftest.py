@@ -18,12 +18,13 @@ class Recipient:
 
 @pytest.fixture
 def setup():
-    simulator_loop = SimulatorLoop(timer=Timer(), sleep_interval=0)
+    timer = Timer()
+    simulator_loop = SimulatorLoop(timer=timer, sleep_interval=0)
     sender = Sender()
     recipient = Recipient()
 
     assert simulator_loop.objects == []
-    return simulator_loop, sender, recipient
+    return simulator_loop, timer, sender, recipient
 
 
 @pytest.fixture(scope="function", autouse=True)
