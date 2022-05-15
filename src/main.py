@@ -3,7 +3,7 @@ import logging
 from algorithms.single_client_total_replication import SingleClientTotalReplication
 from engine.client import Client, ClientFactory
 from engine.consistency_checker import ConsistencyChecker
-from engine.signal import Signal
+from engine.signal import SignalFactory
 from engine.gateway import Gateway
 from engine.node import NodeFactory
 from engine.simulator_loop import SimulatorLoop
@@ -11,7 +11,7 @@ from engine.timer import Timer
 
 logging.basicConfig()
 # logging.getLogger().setLevel(logging.DEBUG)
-Signal.max_duration = 3
+SignalFactory.max_duration = 3
 Client.max_pause = 6
 
 if __name__ == "__main__":

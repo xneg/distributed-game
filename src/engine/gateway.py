@@ -1,7 +1,7 @@
 import logging
 
 from engine.contracts import ClientRequest, ClientResponse
-from engine.signal import Signal
+from engine.signal import SignalFactory
 from engine.singleton import Singleton
 from engine.timer import Timer
 
@@ -42,12 +42,12 @@ class Gateway(metaclass=Singleton):
         if response.id in self._waiting_responses:
             wait = self._waiting_responses.pop(response.id)
             #  additional check that response received from exact node
-            Signal(self, wait["client"], response)
+            SignalFactory.create_signal(self, wait["client"], response)
 
     def _process_request(self, sender, request):
         target_node = self._leader_node if self._leader_node else self._round_robin()
         self._waiting_responses[request.id] = {"client": sender, "node": target_node}
-        Signal(self, target_node, request)
+        SignalFactory.create_signal(self, target_node, request)
 
     def _round_robin(self):
         i = self._round_robin_counter % len(self._nodes)

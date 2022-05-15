@@ -4,7 +4,7 @@ import pytest
 
 from engine.client import Client, ClientType
 from engine.contracts import ClientRequest, RequestType, ClientResponse
-from engine.signal import Signal
+from engine.signal import Signal, SignalFactory
 
 
 class Checker:
@@ -21,7 +21,7 @@ class Checker:
 @pytest.fixture
 def client_test_setup(setup):
     Client.max_pause = 1
-    Signal.max_duration = 1
+    SignalFactory.const_time = 1
     return *setup, Checker()
 
 
@@ -61,7 +61,7 @@ def test_client_process_response(client_test_setup):
     simulator_loop.add_object(client)
 
     response = ClientResponse(type=RequestType.Read, value=3, id=uuid.uuid4())
-    Signal(None, client, response)
+    SignalFactory.create_signal(None, client, response)
 
     simulator_loop.process()
     assert checker.response == (1, response)
@@ -78,7 +78,9 @@ def test_client_process_wrong_type_response(client_test_setup):
     )
     simulator_loop.add_object(client)
 
-    Signal(None, client, ClientResponse(type=RequestType.Read, value=3, id=uuid.uuid4()))
+    SignalFactory.create_signal(
+        None, client, ClientResponse(type=RequestType.Read, value=3, id=uuid.uuid4())
+    )
 
     with pytest.raises(TypeError) as excinfo:
         simulator_loop.process()
