@@ -1,5 +1,6 @@
 import pytest
 
+from engine.gateway import Gateway
 from engine.simulator_loop import SimulatorLoop
 from engine.timer import Timer
 
@@ -31,3 +32,4 @@ def setup():
 def clear_singletons():
     SimulatorLoop.clear()
     Timer.clear()
+    Gateway.clear()
