@@ -39,11 +39,11 @@ class NodeLogic(ABC):
     # @timer(interval=5)
     # @generator
     # def some_timer(self):
-    #     print(f"Node {self._id} timer fired")
+    #     print(f"Node {self.__id} timer fired")
     #
     # @timer(interval=10)
     # @generator
     # def second_timer(self):
-    #     print(f"Node {self._id} AAAAAAAAAAAAAAA")
-    # for node in self._other_nodes:
-    #     self._send_message(node, Ping(sender_id=self._id))
+    #     print(f"Node {self.__id} AAAAAAAAAAAAAAA")
+    # for node in self.__other_nodes:
+    #     self._send_message(node, Ping(sender_id=self.__id))
