@@ -1,16 +1,16 @@
 import logging
 
-from engine.client import ClientRequest, ClientResponse
+from engine.contracts import ClientRequest, ClientResponse
 from engine.link import Link
 from engine.singleton import Singleton
 from engine.timer import Timer
 
 
 class Gateway(metaclass=Singleton):
-    def __init__(self, nodes=None):
-        self._nodes = nodes
-        self._leader_node = next(iter([n for n in nodes if n.is_leader]), None)
-        self._timer = Timer()
+    def __init__(self, timer=None, nodes=None):
+        self._nodes = nodes if nodes else []
+        self._leader_node = next(iter([n for n in self._nodes if n.is_leader]), None)
+        self._timer = timer if timer else Timer()
         self._requests = []
         self._responses = []
         self._waiting_responses = {}

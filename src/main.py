@@ -20,6 +20,7 @@ if __name__ == "__main__":
     for i in range(0, 3):
         nodes.append(node_factory.add_node())
 
+    # TODO: encapsulate this logic in factory
     for node in nodes:
         for other_node in nodes:
             node.discover_node(other_node)

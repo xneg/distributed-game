@@ -18,7 +18,7 @@ class Recipient:
 
 @pytest.fixture
 def setup():
-    simulator_loop = SimulatorLoop(sleep_interval=0)
+    simulator_loop = SimulatorLoop(timer=Timer(), sleep_interval=0)
     sender = Sender()
     recipient = Recipient()
 
