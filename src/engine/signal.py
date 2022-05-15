@@ -4,11 +4,11 @@ from functools import partial
 from engine.simulator_loop import SimulatorLoop
 
 
-class Link:
+class Signal:
     max_duration = 10
 
     def __init__(self, sender, recipient, message, const_time=None):
-        self._duration = const_time if const_time else random.randrange(1, Link.max_duration + 1)
+        self._duration = const_time if const_time else random.randrange(1, Signal.max_duration + 1)
         self._timer = 0
         self._destroyed = False
         self._send_message = partial(self.__send_message, sender, recipient, message)

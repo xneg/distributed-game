@@ -3,7 +3,7 @@ import logging
 from abc import ABC
 
 from engine.contracts import ClientRequest, MessageAck, MessagePacket, generator, make_timer
-from engine.link import Link
+from engine.signal import Signal
 from engine.node_logic import NodeLogic
 from engine.timer import Timer
 
@@ -52,7 +52,7 @@ class Node(ABC):
             self._channels.remove(message.id)
         elif isinstance(message, MessagePacket):
             self._messages.append(message.message)
-            Link(sender=self, recipient=sender, message=MessageAck(message))
+            Signal(sender=self, recipient=sender, message=MessageAck(message))
 
         logging.debug(
             f"Node {self._id} accepted {message} at {self._global_timer.current_epoch()}"
@@ -82,7 +82,7 @@ class Node(ABC):
         if response.id not in self._waiting_responses:
             raise Exception("You response not to your request!")
         gateway = self._waiting_responses.pop(response.id)
-        Link(self, gateway, response)
+        Signal(self, gateway, response)
 
     def create_channel(self, node_id, message):
         if node_id not in self._other_nodes:
@@ -90,7 +90,7 @@ class Node(ABC):
 
         packet = MessagePacket(message)
         self._channels.add(packet.id)
-        Link(self, self._other_nodes[node_id], packet)  # json.dumps(message))
+        Signal(self, self._other_nodes[node_id], packet)  # json.dumps(message))
 
         return Channel(self, node_id, packet)
 

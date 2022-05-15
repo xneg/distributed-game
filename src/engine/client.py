@@ -3,7 +3,7 @@ import random
 from enum import Enum
 
 from engine.contracts import ClientResponse, RequestType, ClientRequest
-from engine.link import Link
+from engine.signal import Signal
 from engine.gateway import Gateway
 from engine.consistency_checker import ConsistencyChecker
 from engine.simulator_loop import SimulatorLoop
@@ -63,7 +63,7 @@ class Client:
         logging.debug(
             f"Client {self._id} sent {self._pending_request} at {self._timer.current_epoch()}"
         )
-        Link(self, self._gateway, self._pending_request)
+        Signal(self, self._gateway, self._pending_request)
         self._checker.add_request(
             client_id=self._id, request=self._pending_request, time=self._timer.current_epoch()
         )
