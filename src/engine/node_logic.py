@@ -1,12 +1,12 @@
 import abc
 from abc import ABC
 
-from engine.contracts import make_timer, generator
+from engine.utils import make_timer, generator
 
 
 # For now, this class is not used
 class NodeLogic(ABC):
-    timer = make_timer()
+    # timer = make_timer()
 
     def __init__(
             self,

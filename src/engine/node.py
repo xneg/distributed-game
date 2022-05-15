@@ -2,7 +2,8 @@ import abc
 import logging
 from abc import ABC
 
-from engine.contracts import ClientRequest, MessageAck, MessagePacket, generator, make_timer
+from engine.contracts import ClientRequest, MessageAck, MessagePacket
+from engine.utils import make_timer, generator
 from engine.signal import SignalFactory
 from engine.timer import Timer
 

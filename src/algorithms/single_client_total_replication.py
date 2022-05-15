@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
-from engine.contracts import RequestType, ClientResponse, generator
+from engine.contracts import RequestType, ClientResponse
+from engine.utils import generator
 from engine.node import Node
 
 
