@@ -28,6 +28,7 @@ class Node(ABC):
         self.__id = node_id
         self.__is_leader = is_leader
         self.__global_timer = timer
+        self.__local_timer = 1
 
         self.__messages = []
         self.__requests = []
@@ -39,7 +40,9 @@ class Node(ABC):
         self.__generators = []
         self.__channels = {}
 
-        logging.info(f"Node {self.__id} created at {self.__global_timer.current_epoch()}")
+        logging.info(
+            f"Node {self.__id} created at {self.__global_timer.current_epoch()}"
+        )
 
     def discover_node(self, node):
         if self != node:
@@ -56,7 +59,9 @@ class Node(ABC):
 
         elif isinstance(message, MessagePacket):
             self.__messages.append(message.message)
-            SignalFactory.create_signal(sender=self, recipient=sender, message=MessageAck(message))
+            SignalFactory.create_signal(
+                sender=self, recipient=sender, message=MessageAck(message)
+            )
 
         logging.debug(
             f"Node {self.__id} accepted {message} at {self.__global_timer.current_epoch()}"
@@ -72,8 +77,7 @@ class Node(ABC):
             self.__generators.append(self.process_message(message))
 
         for (handler, interval) in self.__timer_handlers:
-            # TODO: rewrite using local timer
-            if self.__global_timer.current_epoch() % interval == 0:
+            if self.__local_timer % interval == 0:
                 self.__generators.append(handler(self))
 
         for g in self.__generators.copy():
@@ -81,6 +85,8 @@ class Node(ABC):
                 next(g)
             except StopIteration:
                 self.__generators.remove(g)
+
+        self.__local_timer = self.__local_timer + 1
 
     def send_response(self, response):
         if response.id not in self.__waiting_responses:
@@ -95,7 +101,9 @@ class Node(ABC):
         packet = MessagePacket(message)
         channel = Channel()
         self.__channels[packet.id] = channel
-        SignalFactory.create_signal(self, self.__other_nodes[node_id], packet)  # json.dumps(message))
+        SignalFactory.create_signal(
+            self, self.__other_nodes[node_id], packet
+        )  # json.dumps(message))
 
         return channel.wait()
 
@@ -117,6 +125,10 @@ class Node(ABC):
     @property
     def storage(self):
         return self.__storage
+
+    @property
+    def local_time(self):
+        return self.__local_timer
 
     @abc.abstractmethod
     @generator
