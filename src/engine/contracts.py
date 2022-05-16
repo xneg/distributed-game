@@ -10,6 +10,11 @@ class RequestType(Enum):
     Write = 2
 
 
+class ResponseType(Enum):
+    Success = 1,
+    Fail = 2
+
+
 @dataclass(frozen=True)
 class ClientRequest:
     type: RequestType
@@ -38,10 +43,15 @@ class MessagePacket:
         return self._id
 
 
-class MessageAck:
-    def __init__(self, message_packet: MessagePacket):
+class MessageResponse:
+    def __init__(self, message_packet: MessagePacket, response):
         self._id = message_packet.id
+        self._response = response
 
     @property
     def id(self):
         return self._id
+
+    @property
+    def response(self):
+        return self._response

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from engine.contracts import RequestType, ClientResponse
+from engine.contracts import RequestType, ClientResponse, MessagePacket
 from engine.utils import generator
 from engine.node import Node
 
@@ -13,9 +13,10 @@ class WriteRequest:
 class SingleClientTotalReplication(Node):
 
     @generator
-    def process_message(self, message):
-        if isinstance(message, WriteRequest):
-            self.storage["x"] = message.value
+    def process_message(self, sender_id: int, message_packet: MessagePacket):
+        if isinstance(message_packet.message, WriteRequest):
+            self.storage["x"] = message_packet.message.value
+            self.send_message_response(sender_id, message_packet, "Ack")
 
     @generator
     def process_request(self, request):

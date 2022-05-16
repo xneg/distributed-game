@@ -33,7 +33,7 @@ if __name__ == "__main__":
         sleep_interval=0.3,
     )
     client_factory = ClientFactory()
-    for i in range(0, 3):
+    for i in range(0, 1):
         client_factory.add_client()
     try:
         simulator.loop()

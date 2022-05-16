@@ -2,7 +2,7 @@ import abc
 import logging
 from abc import ABC
 
-from engine.contracts import ClientRequest, MessageAck, MessagePacket
+from engine.contracts import ClientRequest, MessageResponse, MessagePacket
 from engine.utils import make_timer, generator
 from engine.signal import SignalFactory
 from engine.timer import Timer
@@ -11,14 +11,17 @@ from engine.timer import Timer
 class Channel:
     def __init__(self):
         self._trigger = False
+        self._response = None
 
-    def trigger(self):
+    def trigger(self, response):
         self._trigger = True
+        self._response = response
 
     def wait(self):
         # TODO: Need to add timeout or other break conditions
         while not self._trigger:
-            yield  # print(f"processing {self._message.id}")
+            yield None  # print(f"processing {self._message.id}")
+        # return self._response
 
 
 class Node(ABC):
@@ -52,16 +55,12 @@ class Node(ABC):
         if isinstance(message, ClientRequest):
             self.__waiting_responses[message.id] = sender
             self.__requests.append(message)
-        elif isinstance(message, MessageAck):
+        elif isinstance(message, MessageResponse):
             channel = self.__channels.pop(message.id, None)
             if channel:
-                channel.trigger()
-
+                channel.trigger(message.response)
         elif isinstance(message, MessagePacket):
-            self.__messages.append(message.message)
-            SignalFactory.create_signal(
-                sender=self, recipient=sender, message=MessageAck(message)
-            )
+            self.__messages.append((sender.id, message))
 
         logging.debug(
             f"Node {self.__id} accepted {message} at {self.__global_timer.current_epoch()}"
@@ -73,8 +72,8 @@ class Node(ABC):
             self.__generators.append(self.process_request(request))
 
         while self.__messages:
-            message = self.__messages.pop(0)
-            self.__generators.append(self.process_message(message))
+            sender_id, message = self.__messages.pop(0)
+            self.__generators.append(self.process_message(sender_id, message))
 
         for (handler, interval) in self.__timer_handlers:
             if self.__local_timer % interval == 0:
@@ -103,12 +102,21 @@ class Node(ABC):
         self.__channels[packet.id] = channel
         SignalFactory.create_signal(
             self, self.__other_nodes[node_id], packet
-        )  # json.dumps(message))
+        )  # json.dumps(message_packet))
 
         return channel.wait()
 
-    def send_message(self, node_id, message):
+    def send_message_packet(self, node_id, message):
         self.create_channel(node_id, message)
+
+    def send_message_response(
+        self, sender_id: int, message_packet: MessagePacket, response
+    ):
+        SignalFactory.create_signal(
+            self,
+            self.__other_nodes[sender_id],
+            MessageResponse(message_packet, response),
+        )
 
     @property
     def id(self):
@@ -137,7 +145,7 @@ class Node(ABC):
 
     @abc.abstractmethod
     @generator
-    def process_message(self, message):
+    def process_message(self, sender_id: int, message_packet: MessageResponse):
         pass
 
 
