@@ -7,11 +7,11 @@ from engine.simulator_loop import SimulatorLoop
 class Signal:
     max_duration = 10
 
-    def __init__(self, sender, recipient, message, duration):
+    def __init__(self, recipient, message, duration):
         self._duration = duration
         self._timer = 0
         self._destroyed = False
-        self._send_message = partial(self.__send_message, sender, recipient, message)
+        self._send_message = partial(self.__send_message, recipient, message)
 
         SimulatorLoop().add_object(self)
 
@@ -26,8 +26,8 @@ class Signal:
         return self._destroyed
 
     @staticmethod
-    def __send_message(sender, recipient, message):
-        recipient.add_message(sender, message)
+    def __send_message(recipient, message):
+        recipient.add_message(message)
 
 
 class SignalFactory:
@@ -41,4 +41,4 @@ class SignalFactory:
             if SignalFactory.const_time
             else random.randrange(1, SignalFactory.max_duration + 1)
         )
-        Signal(sender=sender, recipient=recipient, message=message, duration=duration)
+        Signal(recipient=recipient, message=message, duration=duration)

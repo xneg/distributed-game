@@ -30,9 +30,14 @@ class ClientResponse:
 
 
 class MessagePacket:
-    def __init__(self, message):
+    def __init__(self, sender, message):
+        self._sender = sender
         self._message = message
         self._id = uuid.uuid4()
+
+    @property
+    def sender(self):
+        return self._sender
 
     @property
     def message(self):
@@ -44,8 +49,8 @@ class MessagePacket:
 
 
 class MessageResponse:
-    def __init__(self, message_packet: MessagePacket, response):
-        self._id = message_packet.id
+    def __init__(self, id: UUID, response):
+        self._id = id
         self._response = response
 
     @property
