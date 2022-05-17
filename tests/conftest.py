@@ -13,8 +13,8 @@ class Recipient:
     def __init__(self):
         self.mailbox = None
 
-    def add_message(self, sender, message):
-        self.mailbox = (sender, message)
+    def add_message(self, message):
+        self.mailbox = message
 
 
 @pytest.fixture
