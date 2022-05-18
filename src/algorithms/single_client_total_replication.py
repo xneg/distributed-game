@@ -11,7 +11,6 @@ class WriteRequest:
 
 
 class SingleClientTotalReplication(Node):
-
     @generator
     def process_message(self, sender_id: int, message_packet: MessagePacket):
         if isinstance(message_packet.message, WriteRequest):
@@ -36,7 +35,9 @@ class SingleClientTotalReplication(Node):
             channels = []
 
             for node in self.other_nodes:
-                channels.append(self.create_channel(node, WriteRequest(value=request.value)))
+                channels.append(
+                    self.create_channel(node, WriteRequest(value=request.value))
+                )
 
             for c in channels:
                 yield from c

@@ -8,6 +8,7 @@ def generator(func):
             yield
         else:
             yield from func(*a, **ka)
+
     return wrapper
 
 
@@ -25,7 +26,7 @@ def make_timer():
         reg.all = registry
         return inner
 
-    reg.all = reg.all if hasattr(reg, 'all') else {}
+    reg.all = reg.all if hasattr(reg, "all") else {}
 
     return reg
 
@@ -44,6 +45,6 @@ def make_endpoint():
         reg.all = registry
         return inner
 
-    reg.all = reg.all if hasattr(reg, 'all') else {}
+    reg.all = reg.all if hasattr(reg, "all") else {}
 
     return reg

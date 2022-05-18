@@ -6,12 +6,12 @@ from uuid import UUID
 
 
 class RequestType(Enum):
-    Read = 1,
+    Read = (1,)
     Write = 2
 
 
 class ResponseType(Enum):
-    Success = 1,
+    Success = (1,)
     Fail = 2
 
 

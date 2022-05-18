@@ -65,7 +65,9 @@ class Client:
         )
         SignalFactory.create_signal(self, self._gateway, self._pending_request)
         self._checker.add_request(
-            client_id=self._id, request=self._pending_request, time=self._timer.current_epoch()
+            client_id=self._id,
+            request=self._pending_request,
+            time=self._timer.current_epoch(),
         )
         self._waiting = True
 

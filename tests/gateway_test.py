@@ -35,7 +35,9 @@ def test_gateway_resends_request_to_node(setup):
     simulator_loop.add_object(gateway)
     simulator_loop.add_object(node)
 
-    SignalFactory.create_signal(sender=sender, recipient=gateway, message=ClientRequest(RequestType.Read))
+    SignalFactory.create_signal(
+        sender=sender, recipient=gateway, message=ClientRequest(RequestType.Read)
+    )
 
     simulator_loop.process()
     # we need second process because gateway always proceed before any signals
@@ -51,7 +53,7 @@ def test_gateway_resends_request_to_node(setup):
 
     incoming_message = node.mailbox[0]
     assert incoming_message is not None
-    assert incoming_message[0] == 'gateway'
+    assert incoming_message[0] == "gateway"
     assert isinstance(incoming_message[1], ClientRequest)
     assert incoming_message[1].type == RequestType.Read
 
@@ -67,9 +69,15 @@ def test_roundrobin(setup):
     simulator_loop.add_object(nodes[0])
     simulator_loop.add_object(nodes[1])
 
-    SignalFactory.create_signal(sender, gateway, ClientRequest(RequestType.Write, value=1))
-    SignalFactory.create_signal(sender, gateway, ClientRequest(RequestType.Write, value=2))
-    SignalFactory.create_signal(sender, gateway, ClientRequest(RequestType.Write, value=3))
+    SignalFactory.create_signal(
+        sender, gateway, ClientRequest(RequestType.Write, value=1)
+    )
+    SignalFactory.create_signal(
+        sender, gateway, ClientRequest(RequestType.Write, value=2)
+    )
+    SignalFactory.create_signal(
+        sender, gateway, ClientRequest(RequestType.Write, value=3)
+    )
 
     # signals reach gateway
     simulator_loop.process()

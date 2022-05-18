@@ -104,4 +104,3 @@ def test3_yields(setup):
     simulator_loop.process()
     #
     assert node1.mailbox == "Ack!"
-

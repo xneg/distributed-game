@@ -16,7 +16,9 @@ class Gateway(WebServer):
         target_node = self._leader_node if self._leader_node else self._round_robin()
         channel = self.create_channel(target_node.id, request)
         result = yield from channel
-        self.send_message_response(packet_id=packet_id, sender_id=sender_id, response=result)
+        self.send_message_response(
+            packet_id=packet_id, sender_id=sender_id, response=result
+        )
 
     def _round_robin(self):
         i = self._round_robin_counter % len(self.nodes)

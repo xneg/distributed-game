@@ -7,7 +7,9 @@ def _has_method(o, name):
 
 
 class SimulatorLoop(metaclass=Singleton):
-    def __init__(self, timer=None, consistency_checker=None, objects=None, sleep_interval=1.0):
+    def __init__(
+        self, timer=None, consistency_checker=None, objects=None, sleep_interval=1.0
+    ):
         self._timer = timer
         self._consistency_checker = consistency_checker
         self._objects = objects if objects else []
