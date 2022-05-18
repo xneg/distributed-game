@@ -20,18 +20,15 @@ class TestNode(Node):
         self.send_message_response(packet_id, sender_id, "Ok")
 
     @Node.timer(interval=1)
-    @generator
     def send_message_timer(self):
         if self.id == 1:
             self.send_message_packet(2, "Hello!")
 
     @Node.timer(interval=3)
-    @generator
     def counter_timer(self):
         self.counter = self.counter + 1
 
     @Node.timer(interval=1)
-    @generator
     def channel_timer(self):
         if self.id == 1:
             channel = self.create_channel(2, "Hello!")

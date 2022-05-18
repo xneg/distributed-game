@@ -12,17 +12,20 @@ def generator(func):
 
 
 def make_timer():
-    registry = []
+    registry = {}
 
     def reg(interval):
         def inner(func):
-            registry.append((func, interval))
-            return func
+            class_name = f"{func.__module__}.{func.__qualname__.split('.')[0]}"
+            if class_name not in registry:
+                registry[class_name] = []
+            registry[class_name].append((generator(func), interval))
+            return generator(func)
 
         reg.all = registry
         return inner
 
-    reg.all = reg.all if hasattr(reg, 'all') else []
+    reg.all = reg.all if hasattr(reg, 'all') else {}
 
     return reg
 

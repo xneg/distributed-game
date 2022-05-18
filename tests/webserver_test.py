@@ -1,4 +1,3 @@
-from engine.contracts import MessagePacket
 from engine.signal import SignalFactory
 from engine.web_server import WebServer
 

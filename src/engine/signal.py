@@ -2,7 +2,7 @@ import random
 from functools import partial
 from uuid import UUID
 
-from engine.contracts import MessagePacket
+from engine.contracts import MessagePacket, MessageResponse
 from engine.simulator_loop import SimulatorLoop
 
 
@@ -47,3 +47,13 @@ class SignalFactory:
         Signal(recipient=recipient, message_packet=message_packet, duration=duration)
 
         return message_packet.id
+
+    @staticmethod
+    def create_response(recipient, packet_id, message):
+        duration = (
+            SignalFactory.const_time
+            if SignalFactory.const_time
+            else random.randrange(1, SignalFactory.max_duration + 1)
+        )
+        message_response = MessageResponse(packet_id, message)
+        Signal(recipient=recipient, message_packet=message_response, duration=duration)

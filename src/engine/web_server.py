@@ -31,10 +31,10 @@ class WebServer(abc.ABC):
     def __init__(self, server_id, timer):
         self.__id = server_id
         self.__global_timer = timer
-        self.__timer_handlers = self.timer.all
 
         class_name = f"{type(self).__module__}.{type(self).__name__}"
         self.__endpoint_handlers = self.endpoint.all[class_name]
+        self.__timer_handlers = self.timer.all[class_name] if class_name in self.timer.all else []
         self.__local_timer = 1
 
         self.__message_packets: List[MessagePacket] = []
@@ -97,11 +97,7 @@ class WebServer(abc.ABC):
         self.create_channel(server_id, message)
 
     def send_message_response(self, packet_id: UUID, sender_id: Any, response):
-        SignalFactory.create_signal(
-            self,
-            self._other_servers[sender_id],
-            MessageResponse(packet_id, response),
-        )
+        SignalFactory.create_response(self._other_servers[sender_id], packet_id, response)
 
     # @abc.abstractmethod
     # @generator
