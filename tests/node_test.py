@@ -48,8 +48,8 @@ def test_messaging(setup):
     node1 = TestNode(timer, 1)
     node2 = TestNode(timer, 2)
 
-    node1.discover_node(node2)
-    node2.discover_node(node1)
+    node1.discover(node2)
+    node2.discover(node1)
 
     simulator_loop.add_object(node1)
     simulator_loop.add_object(node2)
@@ -89,8 +89,8 @@ def test3_yields(setup):
     node1 = TestNode(timer, 1)
     node2 = TestNode(timer, 2)
 
-    node1.discover_node(node2)
-    node2.discover_node(node1)
+    node1.discover(node2)
+    node2.discover(node1)
 
     simulator_loop.add_object(node1)
     simulator_loop.add_object(node2)

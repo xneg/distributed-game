@@ -6,7 +6,9 @@ from engine.timer import Timer
 
 
 class Sender:
-    pass
+    @property
+    def id(self):
+        return "Sender"
 
 
 class Recipient:
