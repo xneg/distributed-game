@@ -4,7 +4,6 @@ from engine.contracts import ClientRequest, RequestType, ClientResponse, Message
 from engine.gateway import Gateway
 from engine.node import Node
 from engine.signal import Signal, SignalFactory
-from engine.utils import generator
 
 
 class DummyNode(Node):
@@ -13,9 +12,8 @@ class DummyNode(Node):
         self.mailbox = None
 
     @Node.endpoint(message_type=ClientRequest)
-    @generator
     def process_request(self, _, sender_id, request):
-        self.mailbox.append((sender_id, request))
+        self.mailbox = (sender_id, request)
 
 
 def test_gateway_resends_request_to_node(setup):
@@ -32,16 +30,19 @@ def test_gateway_resends_request_to_node(setup):
     simulator_loop.process()
     # we need second process because gateway always proceed before any signals
     simulator_loop.process()
-    #
-    # signal = next((o for o in simulator_loop.objects if isinstance(o, Signal)), None)
-    # assert signal is not None
-    #
-    # simulator_loop.process()
-    #
-    # assert recipient.mailbox is not None
-    # assert recipient.mailbox[0] == gateway
-    # assert isinstance(recipient.mailbox[1], ClientRequest)
-    # assert recipient.mailbox[1].type == RequestType.Read
+
+    signal = next((o for o in simulator_loop.objects if isinstance(o, Signal)), None)
+    assert signal is not None
+
+    # signal reached node
+    simulator_loop.process()
+    # node processed message
+    simulator_loop.process()
+
+    assert recipient.mailbox is not None
+    assert recipient.mailbox[0] == 'gateway'
+    assert isinstance(recipient.mailbox[1], ClientRequest)
+    assert recipient.mailbox[1].type == RequestType.Read
 
 
 def test_roundrobin(setup):
@@ -74,8 +75,8 @@ def test_gateway_resend_response(setup):
 
     request = ClientRequest(RequestType.Read)
     response = ClientResponse(RequestType.Read, value=1, id=request.id)
-    Signal(sender=recipient, recipient=gateway, message=request, duration=1)
-    Signal(sender, gateway, message=response, duration=1)
+    Signal(sender=recipient, recipient=gateway, message_packet=request, duration=1)
+    Signal(sender, gateway, message_packet=response, duration=1)
 
     # signals are reaching gateway
     simulator_loop.process()
@@ -95,7 +96,7 @@ def test_gateway_will_not_resend_response_without_request(setup):
     simulator_loop.add_object(gateway)
 
     response = ClientResponse(RequestType.Read, value=1, id=uuid.uuid4())
-    Signal(sender, gateway, message=response, duration=1)
+    Signal(sender, gateway, message_packet=response, duration=1)
 
     # signals are reaching gateway
     simulator_loop.process()

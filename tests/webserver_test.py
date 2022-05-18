@@ -33,8 +33,8 @@ def test_endpoints_registration(setup):
     simulator_loop.add_object(serverA)
     simulator_loop.add_object(serverB)
 
-    SignalFactory.create_signal(sender, serverA, MessagePacket(sender=sender, message="Hello A!"))
-    SignalFactory.create_signal(sender, serverB, MessagePacket(sender=sender, message="Hello B!"))
+    SignalFactory.create_signal(sender=sender, recipient=serverA, message="Hello A!")
+    SignalFactory.create_signal(sender=sender, recipient=serverB, message="Hello B!")
 
     simulator_loop.process()
     simulator_loop.process()

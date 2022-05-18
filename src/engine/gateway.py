@@ -1,6 +1,5 @@
 from engine.contracts import ClientRequest
 from engine.node import Node
-from engine.utils import generator
 from engine.web_server import WebServer
 
 
@@ -13,7 +12,6 @@ class Gateway(WebServer):
             self.discover(n)
 
     @WebServer.endpoint(ClientRequest)
-    # @generator
     def _process_request(self, packet_id, sender_id, request):
         target_node = self._leader_node if self._leader_node else self._round_robin()
         # self._waiting_responses[request.id] = {"client": sender, "node": target_node}
@@ -36,4 +34,4 @@ class Gateway(WebServer):
 
     @property
     def nodes(self):
-        return [s for s in self._other_servers if isinstance(s, Node)]
+        return [s for s in self._other_servers.values() if issubclass(type(s), Node)]

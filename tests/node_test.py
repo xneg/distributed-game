@@ -11,12 +11,10 @@ class TestNode(Node):
         self.mailbox = None
 
     @Node.endpoint(message_type=ClientRequest)
-    @generator
     def process_request(self, request):
         pass
 
     @Node.endpoint(message_type=str)
-    @generator
     def process_message(self, packet_id, sender_id: int, message):
         self.mailbox = message
         self.send_message_response(packet_id, sender_id, "Ok")

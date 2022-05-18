@@ -43,11 +43,9 @@ class WebServer(abc.ABC):
         self.__generators = []
         self.__channels = {}
 
-        logging.info(
-            f"{self.__id} created at {self.__global_timer.current_epoch()}"
-        )
+        logging.info(f"{self.__id} created at {self.__global_timer.current_epoch()}")
 
-    def discover(self, web_server: 'WebServer'):
+    def discover(self, web_server: "WebServer"):
         if self != web_server:
             self._other_servers[web_server.id] = web_server
 
@@ -68,7 +66,9 @@ class WebServer(abc.ABC):
             packet = self.__message_packets.pop(0)
             message_type = type(packet.message)
             handler = self.__endpoint_handlers[message_type]
-            self.__generators.append(handler(self, packet.id, packet.sender.id, packet.message))
+            self.__generators.append(
+                handler(self, packet.id, packet.sender.id, packet.message)
+            )
 
         for (handler, interval) in self.__timer_handlers:
             if self.__local_timer % interval == 0:
@@ -86,13 +86,11 @@ class WebServer(abc.ABC):
         if server_id not in self._other_servers:
             raise Exception(f"Server with id {server_id} doesn't exists!")
 
-        packet = MessagePacket(sender=self, message=message)
-        channel = Channel()
-        self.__channels[packet.id] = channel
-        SignalFactory.create_signal(
-            self, self._other_servers[server_id], packet
+        packet_id = SignalFactory.create_signal(
+            self, self._other_servers[server_id], message
         )  # json.dumps(message_packet))
-
+        channel = Channel()
+        self.__channels[packet_id] = channel
         return channel.wait()
 
     def send_message_packet(self, server_id, message):
