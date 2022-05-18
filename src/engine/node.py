@@ -6,8 +6,8 @@ from engine.web_server import WebServer
 
 
 class Node(WebServer):
-    def __init__(self, timer, node_id, is_leader=False):
-        super().__init__(timer=timer, server_id=node_id)
+    def __init__(self, node_id, timer, is_leader=False):
+        super().__init__(server_id=node_id, timer=timer)
         self.__is_leader = is_leader
         self.__storage = {}
 

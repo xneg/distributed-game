@@ -28,11 +28,13 @@ class WebServer(abc.ABC):
     timer = make_timer()
     endpoint = make_endpoint()
 
-    def __init__(self, timer, server_id):
+    def __init__(self, server_id, timer):
         self.__id = server_id
         self.__global_timer = timer
         self.__timer_handlers = self.timer.all
-        self.__endpoint_handlers = self.endpoint.all
+
+        class_name = f"{type(self).__module__}.{type(self).__name__}"
+        self.__endpoint_handlers = self.endpoint.all[class_name]
         self.__local_timer = 1
 
         self.__message_packets: List[MessagePacket] = []

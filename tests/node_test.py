@@ -5,8 +5,8 @@ from engine.utils import generator
 
 
 class TestNode(Node):
-    def __init__(self, timer, node_id, is_leader=False):
-        super().__init__(timer, node_id, is_leader)
+    def __init__(self, node_id, timer, is_leader=False):
+        super().__init__(node_id, timer, is_leader)
         self.counter = 0
         self.mailbox = None
 
@@ -45,8 +45,8 @@ def test_messaging(setup):
     SignalFactory.const_time = 1
 
     simulator_loop, timer, _, _ = setup
-    node1 = TestNode(timer, 1)
-    node2 = TestNode(timer, 2)
+    node1 = TestNode(1, timer)
+    node2 = TestNode(2, timer)
 
     node1.discover(node2)
     node2.discover(node1)
@@ -67,7 +67,7 @@ def test_messaging(setup):
 
 def test2_local_timer(setup):
     simulator_loop, timer, _, _ = setup
-    node = TestNode(timer, 2)
+    node = TestNode(2, timer)
 
     simulator_loop.process()
     simulator_loop.process()
@@ -86,8 +86,8 @@ def test3_yields(setup):
     SignalFactory.const_time = 1
 
     simulator_loop, timer, _, _ = setup
-    node1 = TestNode(timer, 1)
-    node2 = TestNode(timer, 2)
+    node1 = TestNode(1, timer)
+    node2 = TestNode(2, timer)
 
     node1.discover(node2)
     node2.discover(node1)

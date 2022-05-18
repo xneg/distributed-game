@@ -15,6 +15,10 @@ class Recipient:
     def __init__(self):
         self.mailbox = None
 
+    @property
+    def id(self):
+        return "Recipient"
+
     def add_message(self, message):
         self.mailbox = message
 
@@ -34,4 +38,3 @@ def setup():
 def clear_singletons():
     SimulatorLoop.clear()
     Timer.clear()
-    Gateway.clear()

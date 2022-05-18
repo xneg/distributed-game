@@ -32,8 +32,11 @@ def make_endpoint():
 
     def reg(message_type):
         def inner(func):
-            registry[message_type] = func
-            return func
+            class_name = f"{func.__module__}.{func.__qualname__.split('.')[0]}"
+            if class_name not in registry:
+                registry[class_name] = {}
+            registry[class_name][message_type] = generator(func)
+            return generator(func)
 
         reg.all = registry
         return inner
