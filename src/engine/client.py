@@ -2,7 +2,7 @@ import random
 from enum import Enum
 
 from engine.consistency_checker import ConsistencyChecker
-from engine.contracts import RequestType, ClientRequest
+from engine.contracts import ClientReadRequest, ClientWriteRequest
 from engine.simulator_loop import SimulatorLoop
 from engine.timer import Timer
 from engine.web_server import WebServer
@@ -34,24 +34,32 @@ class Client(WebServer):
 
         request = self._create_request()
 
-        self._checker.add_request(client_id=self.id, request=request)
+        self._checker.add_event(client_id=self.id, event=request)
         channel = self.create_channel(self._gateway_id, request)
         response = yield from channel
 
-        self._checker.add_response(client_id=self.id, response=response)
+        self._checker.add_event(client_id=self.id, event=response)
         for i in range(random.randrange(Client.max_pause) + 1):
             yield
         self._waiting = False
 
     def _create_request(self):
+        request_type = self.choose_request_type()
+        if request_type == RequestType.Read:
+            return ClientReadRequest()
+        else:
+            value = (
+                random.randrange(9) + 1 if request_type == RequestType.Write else None
+            )
+            return ClientWriteRequest(value)
+
+    def choose_request_type(self):
         request_type = random.choice(list(RequestType))
         if self._type == ClientType.Read:
             request_type = RequestType.Read
         elif self._type == ClientType.Write:
             request_type = RequestType.Write
-        value = random.randrange(9) + 1 if request_type == RequestType.Write else None
-        request = ClientRequest(request_type, value)
-        return request
+        return request_type
 
 
 class ClientFactory:
@@ -70,3 +78,8 @@ class ClientFactory:
         self._gateway.discover(client)
         SimulatorLoop().add_object(client)
         self._current_id = self._current_id + 1
+
+
+class RequestType(Enum):
+    Read = (1,)
+    Write = 2

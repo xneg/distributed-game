@@ -1,8 +1,8 @@
 import random
+import uuid
 from functools import partial
 from uuid import UUID
 
-from engine.contracts import MessagePacket, MessageResponse
 from engine.simulator_loop import SimulatorLoop
 
 
@@ -57,3 +57,36 @@ class SignalFactory:
         )
         message_response = MessageResponse(packet_id, message)
         Signal(recipient=recipient, message_packet=message_response, duration=duration)
+
+
+class MessagePacket:
+    def __init__(self, sender, message):
+        self._sender = sender
+        self._message = message
+        self._id = uuid.uuid4()
+
+    @property
+    def sender(self):
+        return self._sender
+
+    @property
+    def message(self):
+        return self._message
+
+    @property
+    def id(self):
+        return self._id
+
+
+class MessageResponse:
+    def __init__(self, id: UUID, response):
+        self._id = id
+        self._response = response
+
+    @property
+    def id(self):
+        return self._id
+
+    @property
+    def response(self):
+        return self._response

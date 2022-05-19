@@ -1,4 +1,3 @@
-from engine.contracts import ClientRequest
 from engine.node import Node
 from engine.signal import SignalFactory
 
@@ -8,10 +7,6 @@ class TestNode(Node):
         super().__init__(node_id, timer, is_leader)
         self.counter = 0
         self.mailbox = None
-
-    @Node.endpoint(message_type=ClientRequest)
-    def process_request(self, request):
-        pass
 
     @Node.endpoint(message_type=str)
     def process_message(self, message):

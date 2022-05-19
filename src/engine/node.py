@@ -1,6 +1,6 @@
 import abc
 
-from engine.contracts import ClientRequest
+from engine.contracts import ClientReadRequest, ClientWriteRequest
 from engine.timer import Timer
 from engine.web_server import WebServer
 
@@ -29,9 +29,14 @@ class Node(WebServer):
     def local_time(self):
         return self.__local_timer
 
-    @WebServer.endpoint(message_type=ClientRequest)
+    @WebServer.endpoint(message_type=ClientReadRequest)
     @abc.abstractmethod
-    def process_request(self, packet_id, sender_id, request):
+    def process_read_request(self, request):
+        pass
+
+    @WebServer.endpoint(message_type=ClientWriteRequest)
+    @abc.abstractmethod
+    def process_write_request(self, request):
         pass
 
 

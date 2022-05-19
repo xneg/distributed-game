@@ -1,4 +1,4 @@
-from engine.contracts import ClientRequest
+from engine.contracts import ClientWriteRequest, ClientReadRequest
 from engine.node import Node
 from engine.web_server import WebServer
 
@@ -11,7 +11,14 @@ class Gateway(WebServer):
         for n in nodes:
             self.discover(n)
 
-    @WebServer.endpoint(ClientRequest)
+    @WebServer.endpoint(ClientWriteRequest)
+    def _process_request(self, request):
+        target_node = self._leader_node if self._leader_node else self._round_robin()
+        channel = self.create_channel(target_node.id, request)
+        result = yield from channel
+        return result
+
+    @WebServer.endpoint(ClientReadRequest)
     def _process_request(self, request):
         target_node = self._leader_node if self._leader_node else self._round_robin()
         channel = self.create_channel(target_node.id, request)

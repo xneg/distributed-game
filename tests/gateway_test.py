@@ -1,4 +1,9 @@
-from engine.contracts import ClientRequest, RequestType, ClientResponse
+from engine.contracts import (
+    ClientReadRequest,
+    ClientWriteRequest,
+    ClientReadResponse,
+    ResponseType,
+)
 from engine.gateway import Gateway
 from engine.node import Node
 from engine.signal import Signal, SignalFactory
@@ -9,8 +14,12 @@ class DummyNode(Node):
         super().__init__(node_id, timer, is_leader)
         self.mailbox = []
 
-    @Node.endpoint(message_type=ClientRequest)
-    def process_request(self, request):
+    @Node.endpoint(message_type=ClientReadRequest)
+    def process_read_request(self, request):
+        pass
+
+    @Node.endpoint(message_type=ClientWriteRequest)
+    def process_write_request(self, request):
         self.mailbox.append(request)
 
 
@@ -19,9 +28,13 @@ class NodeWithResponse(Node):
         super().__init__(node_id, timer, is_leader)
         self.response = response
 
-    @Node.endpoint(message_type=ClientRequest)
-    def process_request(self, request):
+    @Node.endpoint(message_type=ClientReadRequest)
+    def process_read_request(self, request):
         return self.response
+
+    @Node.endpoint(message_type=ClientWriteRequest)
+    def process_write_request(self, request):
+        pass
 
 
 def test_gateway_resends_request_to_node(setup):
@@ -34,7 +47,7 @@ def test_gateway_resends_request_to_node(setup):
     simulator_loop.add_object(node)
 
     SignalFactory.create_signal(
-        sender=sender, recipient=gateway, message=ClientRequest(RequestType.Read)
+        sender=sender, recipient=gateway, message=ClientWriteRequest(value=5)
     )
 
     simulator_loop.process()
@@ -51,8 +64,8 @@ def test_gateway_resends_request_to_node(setup):
 
     incoming_message = node.mailbox[0]
     assert incoming_message is not None
-    assert isinstance(incoming_message, ClientRequest)
-    assert incoming_message.type == RequestType.Read
+    assert isinstance(incoming_message, ClientWriteRequest)
+    assert incoming_message.value == 5
 
 
 def test_roundrobin(setup):
@@ -66,15 +79,9 @@ def test_roundrobin(setup):
     simulator_loop.add_object(nodes[0])
     simulator_loop.add_object(nodes[1])
 
-    SignalFactory.create_signal(
-        sender, gateway, ClientRequest(RequestType.Write, value=1)
-    )
-    SignalFactory.create_signal(
-        sender, gateway, ClientRequest(RequestType.Write, value=2)
-    )
-    SignalFactory.create_signal(
-        sender, gateway, ClientRequest(RequestType.Write, value=3)
-    )
+    SignalFactory.create_signal(sender, gateway, ClientWriteRequest(value=1))
+    SignalFactory.create_signal(sender, gateway, ClientWriteRequest(value=2))
+    SignalFactory.create_signal(sender, gateway, ClientWriteRequest(value=3))
 
     # signals reach gateway
     simulator_loop.process()
@@ -93,8 +100,8 @@ def test_gateway_resend_response(setup):
     SignalFactory.const_time = 1
     simulator_loop, timer, _, recipient = setup
 
-    request = ClientRequest(RequestType.Read)
-    response = ClientResponse(RequestType.Read, value=1, id=request.id)
+    request = ClientReadRequest()
+    response = ClientReadResponse(result=ResponseType.Success, value=1)
 
     node = NodeWithResponse(node_id=1, timer=timer, response=response)
     gateway = Gateway(server_id="gateway", timer=timer, nodes=[node])

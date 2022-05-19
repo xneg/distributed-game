@@ -3,8 +3,7 @@ import logging
 from typing import List, Any, Dict
 from uuid import UUID
 
-from engine.contracts import MessagePacket, MessageResponse
-from engine.signal import SignalFactory
+from engine.signal import SignalFactory, MessagePacket, MessageResponse
 from engine.utils import make_timer, make_endpoint
 
 
@@ -74,7 +73,12 @@ class WebServer(abc.ABC):
         while self.__message_packets:
             packet = self.__message_packets.pop(0)
             message_type = type(packet.message)
-            handler = self.__endpoint_handlers[message_type]
+            try:
+                handler = self.__endpoint_handlers[message_type]
+            except Exception as e:
+                # TODO: raise understandable error
+                print(self.__class__)
+                raise
             self.__generators.append(
                 self.__process_request(
                     handler, packet.id, packet.sender.id, message=packet.message

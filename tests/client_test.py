@@ -1,7 +1,13 @@
 import pytest
 
 from engine.client import Client, ClientType
-from engine.contracts import ClientRequest, RequestType, ClientResponse
+from engine.contracts import (
+    ClientReadRequest,
+    ClientReadResponse,
+    ResponseType,
+    ClientWriteRequest,
+    ClientWriteResponse,
+)
 from engine.signal import Signal, SignalFactory
 from engine.web_server import WebServer
 
@@ -10,17 +16,18 @@ class Checker:
     def __init__(self):
         self.response = None
 
-    def add_request(self, client_id, request):
-        pass
-
-    def add_response(self, client_id, response):
-        self.response = (client_id, response)
+    def add_event(self, client_id, event):
+        self.response = (client_id, event)
 
 
 class TestGateway(WebServer):
-    @WebServer.endpoint(ClientRequest)
-    def _process_request(self, request: ClientRequest):
-        return ClientResponse(request.type, 5, request.id)
+    @WebServer.endpoint(ClientReadRequest)
+    def _process_read_request(self, _: ClientReadRequest):
+        return ClientReadResponse(result=ResponseType.Success, value=5)
+
+    @WebServer.endpoint(ClientWriteRequest)
+    def _process_write_request(self, _: ClientWriteRequest):
+        return ClientWriteResponse(result=ResponseType.Success)
 
 
 @pytest.fixture
@@ -49,8 +56,7 @@ def test_client_sends_messages(client_test_setup):
     simulator_loop.process()
 
     assert recipient.mailbox is not None
-    assert isinstance(recipient.mailbox.message, ClientRequest)
-    assert recipient.mailbox.message.type == RequestType.Write
+    assert isinstance(recipient.mailbox.message, ClientWriteRequest)
 
 
 def test_client_process_response(client_test_setup):
