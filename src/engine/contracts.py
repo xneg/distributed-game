@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
+from typing import Any
 
 
 class ResponseType(Enum):
@@ -26,3 +27,8 @@ class ClientReadRequest:
 class ClientReadResponse:
     result: ResponseType
     value: int
+
+
+@dataclass(frozen=True)
+class LeaderNotification:
+    id: Any

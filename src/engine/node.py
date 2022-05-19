@@ -1,6 +1,6 @@
 import abc
 
-from engine.contracts import ClientReadRequest, ClientWriteRequest
+from engine.contracts import ClientReadRequest, ClientWriteRequest, LeaderNotification
 from engine.timer import Timer
 from engine.web_server import WebServer
 
@@ -10,6 +10,11 @@ class Node(WebServer):
         super().__init__(server_id=node_id, timer=timer)
         self.__is_leader = is_leader
         self.__storage = {}
+        self.__gateway_id = None
+
+    def discover_gateway(self, web_server: "WebServer"):
+        self.discover(web_server)
+        self.__gateway_id = web_server.id
 
     @property
     def is_leader(self):
@@ -28,6 +33,9 @@ class Node(WebServer):
     @property
     def local_time(self):
         return self.__local_timer
+
+    def notify_leadership(self):
+        self.send_message(self.__gateway_id, LeaderNotification(id=self.id))
 
     @WebServer.endpoint(message_type=ClientReadRequest)
     @abc.abstractmethod
@@ -54,7 +62,7 @@ class NodeFactory:
             node_id=self._current_id,
             is_leader=is_leader,
         )
-        node.discover(self._gateway)
+        node.discover_gateway(self._gateway)
         self._gateway.discover(node)
 
         for n in self._nodes:

@@ -75,10 +75,10 @@ class WebServer(abc.ABC):
             message_type = type(packet.message)
             try:
                 handler = self.__endpoint_handlers[message_type]
-            except Exception as e:
-                # TODO: raise understandable error
-                print(self.__class__)
-                raise
+            except KeyError:
+                raise KeyError(
+                    f"{self.__class__} doesn't have endpoint for {message_type}"
+                )
             self.__generators.append(
                 self.__process_request(
                     handler, packet.id, packet.sender.id, message=packet.message
@@ -101,10 +101,9 @@ class WebServer(abc.ABC):
         if server_id not in self._other_servers:
             raise Exception(f"Server with id {server_id} doesn't exists!")
 
-        #  TODO: add logging
-        # logging.debug(
-        #     f"Client {self.id} sent {request} at {self.timer.current_epoch()}"
-        # )
+        logging.debug(
+            f"{self.id} sent {message} to {server_id} at {self.timer.current_epoch()}"
+        )
         packet_id = SignalFactory.create_signal(
             self, self._other_servers[server_id], message
         )  # json.dumps(message_packet))
