@@ -4,12 +4,10 @@ from engine.web_server import WebServer
 
 
 class Gateway(WebServer):
-    def __init__(self, server_id, timer, nodes):
+    def __init__(self, server_id, timer):
         super().__init__(server_id, timer)
         self._leader_node = None
         self._round_robin_counter = 0
-        for n in nodes:
-            self.discover(n)
 
     @WebServer.endpoint(ClientWriteRequest)
     def _process_write_request(self, request):

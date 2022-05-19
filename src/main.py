@@ -15,16 +15,15 @@ SignalFactory.max_duration = 3
 Client.max_pause = 6
 
 if __name__ == "__main__":
-    node_factory = NodeFactory(SingleClientTotalReplication)
+    gateway = Gateway(server_id="gateway", timer=Timer())
+
+    node_factory = NodeFactory(SingleClientTotalReplication, gateway)
     nodes = []
     for i in range(0, 3):
         nodes.append(node_factory.add_node())
 
-    gateway = Gateway(server_id="gateway", timer=Timer(), nodes=nodes)
-
     # TODO: encapsulate this logic in factory
     for node in nodes:
-        node.discover(gateway)
         for other_node in nodes:
             node.discover(other_node)
 

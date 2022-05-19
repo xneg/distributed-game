@@ -41,14 +41,18 @@ class Node(WebServer):
 
 
 class NodeFactory:
-    def __init__(self, node_class):
+    def __init__(self, node_class, gateway):
         self._current_id = 0
         self._node_class = node_class
+        self._gateway = gateway
 
     def add_node(self, is_leader=False):
         self._current_id = self._current_id + 1
-        return self._node_class(
+        node = self._node_class(
             timer=Timer(),
             node_id=self._current_id,
             is_leader=is_leader,
         )
+        node.discover(self._gateway)
+        self._gateway.discover(node)
+        return node

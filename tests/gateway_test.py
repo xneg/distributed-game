@@ -5,7 +5,7 @@ from engine.contracts import (
     ResponseType,
 )
 from engine.gateway import Gateway
-from engine.node import Node
+from engine.node import Node, NodeFactory
 from engine.signal import Signal, SignalFactory
 
 
@@ -41,8 +41,9 @@ def test_gateway_resends_request_to_node(setup):
     SignalFactory.const_time = 1
     simulator_loop, timer, sender, _ = setup
 
-    node = DummyNode(1, timer)
-    gateway = Gateway(server_id="gateway", timer=timer, nodes=[node])
+    gateway = Gateway(server_id="gateway", timer=timer)
+    node = NodeFactory(DummyNode, gateway).add_node()
+
     simulator_loop.add_object(gateway)
     simulator_loop.add_object(node)
 
@@ -72,9 +73,12 @@ def test_roundrobin(setup):
     SignalFactory.const_time = 1
     simulator_loop, timer, sender, _ = setup
 
-    nodes = [DummyNode(1, timer), DummyNode(2, timer)]
+    gateway = Gateway(server_id="gateway", timer=timer)
+    node_factory = NodeFactory(DummyNode, gateway)
+    nodes = []
+    for i in range(0, 2):
+        nodes.append(node_factory.add_node())
 
-    gateway = Gateway(server_id="gateway", nodes=nodes, timer=timer)
     simulator_loop.add_object(gateway)
     simulator_loop.add_object(nodes[0])
     simulator_loop.add_object(nodes[1])
@@ -104,9 +108,10 @@ def test_gateway_resend_response(setup):
     response = ClientReadResponse(result=ResponseType.Success, value=1)
 
     node = NodeWithResponse(node_id=1, timer=timer, response=response)
-    gateway = Gateway(server_id="gateway", timer=timer, nodes=[node])
+    gateway = Gateway(server_id="gateway", timer=timer)
     node.discover(gateway)
     gateway.discover(recipient)
+    gateway.discover(node)
 
     simulator_loop.add_object(gateway)
     simulator_loop.add_object(node)
