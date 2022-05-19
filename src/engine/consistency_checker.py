@@ -11,18 +11,18 @@ class ConsistencyChecker(metaclass=Singleton):
         self._timer = Timer()
         logging.info(f"Consistency checker created at {self._timer.current_epoch()}")
 
-    def add_request(self, client_id, request, time):
+    def add_request(self, client_id, request):
         if client_id not in self._client_lines:
             self._client_lines[client_id] = []
-        self._client_lines[client_id].append((time, request))
+        self._client_lines[client_id].append((self._timer.current_epoch(), request))
 
-    def add_response(self, client_id, response, time):
+    def add_response(self, client_id, response):
         if client_id not in self._client_lines:
             self._client_lines[client_id] = []
-        self._client_lines[client_id].append((time, response))
+        self._client_lines[client_id].append((self._timer.current_epoch(), response))
 
     def process(self):
-        line = ""
+        line = str(self._timer.current_epoch()) + " "
         for client in self._client_lines:
             (time, event) = self._client_lines[client][-1]
             if time != self._timer.current_epoch():

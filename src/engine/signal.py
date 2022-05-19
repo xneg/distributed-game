@@ -1,17 +1,19 @@
 import random
 from functools import partial
+from uuid import UUID
 
+from engine.contracts import MessagePacket, MessageResponse
 from engine.simulator_loop import SimulatorLoop
 
 
 class Signal:
     max_duration = 10
 
-    def __init__(self, sender, recipient, message, duration):
+    def __init__(self, recipient, message_packet, duration):
         self._duration = duration
         self._timer = 0
         self._destroyed = False
-        self._send_message = partial(self.__send_message, sender, recipient, message)
+        self._send_message = partial(self.__send_message, recipient, message_packet)
 
         SimulatorLoop().add_object(self)
 
@@ -26,8 +28,8 @@ class Signal:
         return self._destroyed
 
     @staticmethod
-    def __send_message(sender, recipient, message):
-        recipient.add_message(sender, message)
+    def __send_message(recipient, message):
+        recipient.add_message(message)
 
 
 class SignalFactory:
@@ -35,10 +37,23 @@ class SignalFactory:
     max_duration = 10
 
     @staticmethod
-    def create_signal(sender, recipient, message):
+    def create_signal(sender, recipient, message) -> UUID:
         duration = (
             SignalFactory.const_time
             if SignalFactory.const_time
             else random.randrange(1, SignalFactory.max_duration + 1)
         )
-        Signal(sender=sender, recipient=recipient, message=message, duration=duration)
+        message_packet = MessagePacket(sender, message)
+        Signal(recipient=recipient, message_packet=message_packet, duration=duration)
+
+        return message_packet.id
+
+    @staticmethod
+    def create_response(recipient, packet_id, message):
+        duration = (
+            SignalFactory.const_time
+            if SignalFactory.const_time
+            else random.randrange(1, SignalFactory.max_duration + 1)
+        )
+        message_response = MessageResponse(packet_id, message)
+        Signal(recipient=recipient, message_packet=message_response, duration=duration)

@@ -1,126 +1,15 @@
 import abc
-import logging
-from abc import ABC
 
-from engine.contracts import ClientRequest, MessageResponse, MessagePacket
-from engine.utils import make_timer, generator
-from engine.signal import SignalFactory
+from engine.contracts import ClientRequest
 from engine.timer import Timer
+from engine.web_server import WebServer
 
 
-class Channel:
-    def __init__(self):
-        self._trigger = False
-        self._response = None
-
-    def trigger(self, response):
-        self._trigger = True
-        self._response = response
-
-    def wait(self):
-        # TODO: Need to add timeout or other break conditions
-        while not self._trigger:
-            yield None  # print(f"processing {self._message.id}")
-        # return self._response
-
-
-class Node(ABC):
-    timer = make_timer()
-
-    def __init__(self, timer, node_id, is_leader=False):
-        self.__id = node_id
+class Node(WebServer):
+    def __init__(self, node_id, timer, is_leader=False):
+        super().__init__(server_id=node_id, timer=timer)
         self.__is_leader = is_leader
-        self.__global_timer = timer
-        self.__local_timer = 1
-
-        self.__messages = []
-        self.__requests = []
-        self.__waiting_responses = {}
         self.__storage = {}
-        self.__other_nodes = {}
-
-        self.__timer_handlers = self.timer.all
-        self.__generators = []
-        self.__channels = {}
-
-        logging.info(
-            f"Node {self.__id} created at {self.__global_timer.current_epoch()}"
-        )
-
-    def discover_node(self, node):
-        if self != node:
-            self.__other_nodes[node.id] = node
-
-    def add_message(self, sender, message):
-        if isinstance(message, ClientRequest):
-            self.__waiting_responses[message.id] = sender
-            self.__requests.append(message)
-        elif isinstance(message, MessageResponse):
-            channel = self.__channels.pop(message.id, None)
-            if channel:
-                channel.trigger(message.response)
-        elif isinstance(message, MessagePacket):
-            self.__messages.append((sender.id, message))
-
-        logging.debug(
-            f"Node {self.__id} accepted {message} at {self.__global_timer.current_epoch()}"
-        )
-
-    def process(self):
-        while self.__requests:
-            request = self.__requests.pop(0)
-            self.__generators.append(self.process_request(request))
-
-        while self.__messages:
-            sender_id, message = self.__messages.pop(0)
-            self.__generators.append(self.process_message(sender_id, message))
-
-        for (handler, interval) in self.__timer_handlers:
-            if self.__local_timer % interval == 0:
-                self.__generators.append(handler(self))
-
-        for g in self.__generators.copy():
-            try:
-                next(g)
-            except StopIteration:
-                self.__generators.remove(g)
-
-        self.__local_timer = self.__local_timer + 1
-
-    def send_response(self, response):
-        if response.id not in self.__waiting_responses:
-            raise Exception("You response not to your request!")
-        gateway = self.__waiting_responses.pop(response.id)
-        SignalFactory.create_signal(self, gateway, response)
-
-    def create_channel(self, node_id, message):
-        if node_id not in self.__other_nodes:
-            raise Exception(f"Node with id {node_id} doesn't exists!")
-
-        packet = MessagePacket(message)
-        channel = Channel()
-        self.__channels[packet.id] = channel
-        SignalFactory.create_signal(
-            self, self.__other_nodes[node_id], packet
-        )  # json.dumps(message_packet))
-
-        return channel.wait()
-
-    def send_message_packet(self, node_id, message):
-        self.create_channel(node_id, message)
-
-    def send_message_response(
-        self, sender_id: int, message_packet: MessagePacket, response
-    ):
-        SignalFactory.create_signal(
-            self,
-            self.__other_nodes[sender_id],
-            MessageResponse(message_packet, response),
-        )
-
-    @property
-    def id(self):
-        return self.__id
 
     @property
     def is_leader(self):
@@ -128,7 +17,9 @@ class Node(ABC):
 
     @property
     def other_nodes(self):
-        return self.__other_nodes.keys()
+        return [
+            k for (k, v) in self._other_servers.items() if issubclass(type(v), Node)
+        ]
 
     @property
     def storage(self):
@@ -138,14 +29,9 @@ class Node(ABC):
     def local_time(self):
         return self.__local_timer
 
+    @WebServer.endpoint(message_type=ClientRequest)
     @abc.abstractmethod
-    @generator
-    def process_request(self, request):
-        pass
-
-    @abc.abstractmethod
-    @generator
-    def process_message(self, sender_id: int, message_packet: MessageResponse):
+    def process_request(self, packet_id, sender_id, request):
         pass
 
 

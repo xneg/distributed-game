@@ -9,14 +9,14 @@ class NodeLogic(ABC):
     # timer = make_timer()
 
     def __init__(
-            self,
-            id,
-            send_response,
-            send_message,
-            create_channel,
-            storage,
-            is_leader,
-            other_nodes,
+        self,
+        id,
+        send_response,
+        send_message,
+        create_channel,
+        storage,
+        is_leader,
+        other_nodes,
     ):
         self._id = id
         self._send_response = send_response

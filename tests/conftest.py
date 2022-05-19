@@ -1,20 +1,25 @@
 import pytest
 
-from engine.gateway import Gateway
 from engine.simulator_loop import SimulatorLoop
 from engine.timer import Timer
 
 
 class Sender:
-    pass
+    @property
+    def id(self):
+        return "Sender"
 
 
 class Recipient:
     def __init__(self):
         self.mailbox = None
 
-    def add_message(self, sender, message):
-        self.mailbox = (sender, message)
+    @property
+    def id(self):
+        return "Recipient"
+
+    def add_message(self, message):
+        self.mailbox = message
 
 
 @pytest.fixture
@@ -32,4 +37,3 @@ def setup():
 def clear_singletons():
     SimulatorLoop.clear()
     Timer.clear()
-    Gateway.clear()
