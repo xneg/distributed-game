@@ -3,9 +3,9 @@ import logging
 from algorithms.single_client_total_replication import SingleClientTotalReplication
 from engine.client import Client, ClientFactory
 from engine.consistency_checker import ConsistencyChecker
-from engine.signal import SignalFactory
 from engine.gateway import Gateway
 from engine.node import NodeFactory
+from engine.signal import SignalFactory
 from engine.simulator_loop import SimulatorLoop
 from engine.timer import Timer
 
@@ -36,7 +36,7 @@ if __name__ == "__main__":
         sleep_interval=0.3,
     )
     client_factory = ClientFactory(gateway)
-    for i in range(0, 2):
+    for i in range(0, 1):
         client_factory.add_client()
 
     try:

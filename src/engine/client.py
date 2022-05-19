@@ -1,8 +1,8 @@
 import random
 from enum import Enum
 
-from engine.contracts import RequestType, ClientRequest
 from engine.consistency_checker import ConsistencyChecker
+from engine.contracts import RequestType, ClientRequest
 from engine.simulator_loop import SimulatorLoop
 from engine.timer import Timer
 from engine.web_server import WebServer

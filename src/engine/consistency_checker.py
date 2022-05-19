@@ -1,7 +1,7 @@
 import logging
 
-from engine.singleton import Singleton
 from engine.contracts import RequestType, ClientRequest
+from engine.singleton import Singleton
 from engine.timer import Timer
 
 

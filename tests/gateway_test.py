@@ -1,6 +1,4 @@
-import uuid
-
-from engine.contracts import ClientRequest, RequestType, ClientResponse, MessagePacket
+from engine.contracts import ClientRequest, RequestType, ClientResponse
 from engine.gateway import Gateway
 from engine.node import Node
 from engine.signal import Signal, SignalFactory
@@ -12,8 +10,8 @@ class DummyNode(Node):
         self.mailbox = []
 
     @Node.endpoint(message_type=ClientRequest)
-    def process_request(self, _, sender_id, request):
-        self.mailbox.append((sender_id, request))
+    def process_request(self, request):
+        self.mailbox.append(request)
 
 
 class NodeWithResponse(Node):
@@ -22,8 +20,8 @@ class NodeWithResponse(Node):
         self.response = response
 
     @Node.endpoint(message_type=ClientRequest)
-    def process_request(self, packet_id, sender_id, request):
-        self.send_message_response(packet_id, sender_id, self.response)
+    def process_request(self, request):
+        return self.response
 
 
 def test_gateway_resends_request_to_node(setup):
@@ -53,9 +51,8 @@ def test_gateway_resends_request_to_node(setup):
 
     incoming_message = node.mailbox[0]
     assert incoming_message is not None
-    assert incoming_message[0] == "gateway"
-    assert isinstance(incoming_message[1], ClientRequest)
-    assert incoming_message[1].type == RequestType.Read
+    assert isinstance(incoming_message, ClientRequest)
+    assert incoming_message.type == RequestType.Read
 
 
 def test_roundrobin(setup):

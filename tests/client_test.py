@@ -1,5 +1,3 @@
-import uuid
-
 import pytest
 
 from engine.client import Client, ClientType
@@ -21,11 +19,8 @@ class Checker:
 
 class TestGateway(WebServer):
     @WebServer.endpoint(ClientRequest)
-    def _process_request(self, packet_id, sender_id, request: ClientRequest):
-        response = ClientResponse(request.type, 5, request.id)
-        self.send_message_response(
-            packet_id=packet_id, sender_id=sender_id, response=response
-        )
+    def _process_request(self, request: ClientRequest):
+        return ClientResponse(request.type, 5, request.id)
 
 
 @pytest.fixture

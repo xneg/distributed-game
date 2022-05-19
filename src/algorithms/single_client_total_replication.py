@@ -12,23 +12,19 @@ class WriteRequest:
 
 class SingleClientTotalReplication(Node):
     @WebServer.endpoint(message_type=WriteRequest)
-    def process_message(self, packet_id, sender_id, request: WriteRequest):
+    def process_message(self, request: WriteRequest):
         self.storage["x"] = request.value
-        self.send_message_response(packet_id, sender_id, "Ack")
+        return "Ack"
 
     @WebServer.endpoint(message_type=ClientRequest)
-    def process_request(self, packet_id, sender_id, request):
+    def process_request(self, request):
         if request.type == RequestType.Read:
             print(f"Node {self.id} received read request")
             value = self.storage.get("x", None)
-            self.send_message_response(
-                packet_id=packet_id,
-                sender_id=sender_id,
-                response=ClientResponse(
-                    type=RequestType.Read,
-                    value=value if value is not None else "N",
-                    id=request.id,
-                ),
+            return ClientResponse(
+                type=RequestType.Read,
+                value=value if value is not None else "N",
+                id=request.id,
             )
         else:
             print(f"Node {self.id} received write request")
@@ -43,14 +39,8 @@ class SingleClientTotalReplication(Node):
             for c in channels:
                 yield from c
 
-            self.send_message_response(
-                packet_id=packet_id,
-                sender_id=sender_id,
-                response=ClientResponse(
-                    type=RequestType.Write, value="+", id=request.id
-                ),
-            )
             print(f"Node {self.id} sent write response")
+            return ClientResponse(type=RequestType.Write, value="+", id=request.id)
 
     # @timer(interval=5)
     # @generator

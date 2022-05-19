@@ -65,13 +65,20 @@ class WebServer(abc.ABC):
             f"{self.__id} accepted {message} at {self.__global_timer.current_epoch()}"
         )
 
+    def __process_request(self, handler, packet_id, sender_id, message):
+        result = yield from handler(self, message)
+        if result:
+            self.__send_message_response(packet_id, sender_id, result)
+
     def process(self):
         while self.__message_packets:
             packet = self.__message_packets.pop(0)
             message_type = type(packet.message)
             handler = self.__endpoint_handlers[message_type]
             self.__generators.append(
-                handler(self, packet.id, packet.sender.id, packet.message)
+                self.__process_request(
+                    handler, packet.id, packet.sender.id, message=packet.message
+                )
             )
 
         for (handler, interval) in self.__timer_handlers:
@@ -104,7 +111,7 @@ class WebServer(abc.ABC):
     def send_message_packet(self, server_id, message):
         self.create_channel(server_id, message)
 
-    def send_message_response(self, packet_id: UUID, sender_id: Any, response):
+    def __send_message_response(self, packet_id: UUID, sender_id: Any, response):
         SignalFactory.create_response(
             self._other_servers[sender_id], packet_id, response
         )

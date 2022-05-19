@@ -1,7 +1,6 @@
 from engine.contracts import ClientRequest
 from engine.node import Node
 from engine.signal import SignalFactory
-from engine.utils import generator
 
 
 class TestNode(Node):
@@ -15,9 +14,9 @@ class TestNode(Node):
         pass
 
     @Node.endpoint(message_type=str)
-    def process_message(self, packet_id, sender_id: int, message):
+    def process_message(self, message):
         self.mailbox = message
-        self.send_message_response(packet_id, sender_id, "Ok")
+        return "Ok"
 
     @Node.timer(interval=1)
     def send_message_timer(self):

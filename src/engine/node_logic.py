@@ -1,7 +1,7 @@
 import abc
 from abc import ABC
 
-from engine.utils import make_timer, generator
+from engine.utils import generator
 
 
 # For now, this class is not used

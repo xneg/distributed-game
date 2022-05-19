@@ -4,10 +4,10 @@ import inspect
 def generator(func):
     def wrapper(*a, **ka):
         if not inspect.isgeneratorfunction(func):
-            func(*a, **ka)
-            yield
+            return func(*a, **ka)
         else:
-            yield from func(*a, **ka)
+            result = yield from func(*a, **ka)
+            return result
 
     return wrapper
 

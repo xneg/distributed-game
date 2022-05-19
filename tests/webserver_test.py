@@ -8,8 +8,8 @@ class TestWebServerA(WebServer):
         self.mailbox = None
 
     @WebServer.endpoint(message_type=str)
-    def process_str_message(self, _, sender_id, message):
-        self.mailbox = (sender_id, message)
+    def process_str_message(self, message):
+        self.mailbox = message
 
 
 class TestWebServerB(WebServer):
@@ -18,8 +18,8 @@ class TestWebServerB(WebServer):
         self.mailbox = None
 
     @WebServer.endpoint(message_type=str)
-    def process_str_message(self, _, sender_id, message):
-        self.mailbox = (sender_id, message)
+    def process_str_message(self, message):
+        self.mailbox = message
 
 
 def test_endpoints_registration(setup):
@@ -38,5 +38,5 @@ def test_endpoints_registration(setup):
     simulator_loop.process()
     simulator_loop.process()
 
-    assert serverA.mailbox == ("Sender", "Hello A!")
-    assert serverB.mailbox == ("Sender", "Hello B!")
+    assert serverA.mailbox == "Hello A!"
+    assert serverB.mailbox == "Hello B!"
