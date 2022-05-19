@@ -35,8 +35,8 @@ class Client(WebServer):
         request = self._create_request()
 
         self._checker.add_event(client_id=self.id, event=request)
-        channel = self.create_channel(self._gateway_id, request)
-        response = yield from channel
+        waiting_response = self.get_response(self._gateway_id, request)
+        response = yield from waiting_response
 
         self._checker.add_event(client_id=self.id, event=response)
         for i in range(random.randrange(Client.max_pause) + 1):

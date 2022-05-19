@@ -12,17 +12,17 @@ class Gateway(WebServer):
             self.discover(n)
 
     @WebServer.endpoint(ClientWriteRequest)
-    def _process_request(self, request):
+    def _process_write_request(self, request):
         target_node = self._leader_node if self._leader_node else self._round_robin()
-        channel = self.create_channel(target_node.id, request)
-        result = yield from channel
+        waiting_response = self.get_response(target_node.id, request)
+        result = yield from waiting_response
         return result
 
     @WebServer.endpoint(ClientReadRequest)
-    def _process_request(self, request):
+    def _process_read_request(self, request):
         target_node = self._leader_node if self._leader_node else self._round_robin()
-        channel = self.create_channel(target_node.id, request)
-        result = yield from channel
+        waiting_response = self.get_response(target_node.id, request)
+        result = yield from waiting_response
         return result
 
     def _round_robin(self):

@@ -7,7 +7,7 @@ from engine.signal import SignalFactory, MessagePacket, MessageResponse
 from engine.utils import make_timer, make_endpoint
 
 
-class Channel:
+class WaitingResponse:
     def __init__(self):
         self._trigger = False
         self._response = None
@@ -44,7 +44,7 @@ class WebServer(abc.ABC):
         self._other_servers: Dict[Any, WebServer] = {}
         self.__storage = {}
         self.__generators = []
-        self.__channels = {}
+        self.__waiting_responses = {}
 
         logging.info(f"{self.__id} created at {self.__global_timer.current_epoch()}")
 
@@ -54,9 +54,9 @@ class WebServer(abc.ABC):
 
     def add_message(self, message):
         if isinstance(message, MessageResponse):
-            channel = self.__channels.pop(message.id, None)
-            if channel:
-                channel.trigger(message.response)
+            waiting_response = self.__waiting_responses.pop(message.id, None)
+            if waiting_response:
+                waiting_response.trigger(message.response)
         elif isinstance(message, MessagePacket):
             self.__message_packets.append(message)
 
@@ -97,7 +97,7 @@ class WebServer(abc.ABC):
 
         self.__local_timer = self.__local_timer + 1
 
-    def create_channel(self, server_id, message):
+    def get_response(self, server_id, message):
         if server_id not in self._other_servers:
             raise Exception(f"Server with id {server_id} doesn't exists!")
 
@@ -108,22 +108,17 @@ class WebServer(abc.ABC):
         packet_id = SignalFactory.create_signal(
             self, self._other_servers[server_id], message
         )  # json.dumps(message_packet))
-        channel = Channel()
-        self.__channels[packet_id] = channel
-        return channel.wait()
+        waiting_response = WaitingResponse()
+        self.__waiting_responses[packet_id] = waiting_response
+        return waiting_response.wait()
 
-    def send_message_packet(self, server_id, message):
-        self.create_channel(server_id, message)
+    def send_message(self, server_id, message):
+        self.get_response(server_id, message)
 
     def __send_message_response(self, packet_id: UUID, sender_id: Any, response):
         SignalFactory.create_response(
             self._other_servers[sender_id], packet_id, response
         )
-
-    # @abc.abstractmethod
-    # @generator
-    # def process_message(self, sender_id: int, message):
-    #     pass
 
     @property
     def id(self):

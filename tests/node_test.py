@@ -16,17 +16,17 @@ class TestNode(Node):
     @Node.timer(interval=1)
     def send_message_timer(self):
         if self.id == 1:
-            self.send_message_packet(2, "Hello!")
+            self.send_message(2, "Hello!")
 
     @Node.timer(interval=3)
     def counter_timer(self):
         self.counter = self.counter + 1
 
     @Node.timer(interval=1)
-    def channel_timer(self):
+    def waiting_timer(self):
         if self.id == 1:
-            channel = self.create_channel(2, "Hello!")
-            yield from channel
+            waiting_response = self.get_response(2, "Hello!")
+            yield from waiting_response
             self.mailbox = "Ack!"
 
 

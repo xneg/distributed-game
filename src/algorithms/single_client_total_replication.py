@@ -34,27 +34,15 @@ class SingleClientTotalReplication(Node):
     def process_write_request(self, request: ClientWriteRequest):
         print(f"Node {self.id} received write request")
         self.storage["x"] = request.value
-        channels = []
+        waiting_responses = []
 
         for node in self.other_nodes:
-            channels.append(
-                self.create_channel(node, WriteRequest(value=request.value))
+            waiting_responses.append(
+                self.get_response(node, WriteRequest(value=request.value))
             )
 
-        for c in channels:
-            yield from c
+        for r in waiting_responses:
+            yield from r
 
         print(f"Node {self.id} sent write response")
         return ClientWriteResponse(result=ResponseType.Success)
-
-    # @timer(interval=5)
-    # @generator
-    # def some_timer(self):
-    #     print(f"Node {self.__id} timer fired")
-    #
-    # @Node.timer(interval=10)
-    # @generator
-    # def second_timer(self):
-    #     print(f"Node {self.__id} AAAAAAAAAAAAAAA")
-    # for node in self.__other_nodes:
-    #     self._send_message(node, Ping(sender_id=self.__id))
