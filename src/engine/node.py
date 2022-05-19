@@ -11,20 +11,15 @@ class Node(WebServer):
         self.__is_leader = is_leader
         self.__storage = {}
 
-    def send_response(self, response):
-        pass
-        # if response.id not in self.__waiting_responses:
-        #     raise Exception("You response not to your request!")
-        # gateway = self.__waiting_responses.pop(response.id)
-        # SignalFactory.create_signal(self, gateway, response)
-
     @property
     def is_leader(self):
         return self.__is_leader
 
     @property
     def other_nodes(self):
-        return self._other_servers.keys()
+        return [
+            k for (k, v) in self._other_servers.items() if issubclass(type(v), Node)
+        ]
 
     @property
     def storage(self):
@@ -36,8 +31,7 @@ class Node(WebServer):
 
     @WebServer.endpoint(message_type=ClientRequest)
     @abc.abstractmethod
-    # @generator
-    def process_request(self, request):
+    def process_request(self, packet_id, sender_id, request):
         pass
 
 

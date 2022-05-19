@@ -20,21 +20,25 @@ if __name__ == "__main__":
     for i in range(0, 3):
         nodes.append(node_factory.add_node())
 
+    gateway = Gateway(server_id="gateway", timer=Timer(), nodes=nodes)
+
     # TODO: encapsulate this logic in factory
     for node in nodes:
+        node.discover(gateway)
         for other_node in nodes:
-            node.discover_node(other_node)
+            node.discover(other_node)
 
-    objects = [Gateway(nodes=nodes)] + nodes
+    objects = [gateway] + nodes
     simulator = SimulatorLoop(
         timer=Timer(),
         consistency_checker=ConsistencyChecker(),
         objects=objects,
         sleep_interval=0.3,
     )
-    client_factory = ClientFactory()
-    for i in range(0, 1):
+    client_factory = ClientFactory(gateway)
+    for i in range(0, 2):
         client_factory.add_client()
+
     try:
         simulator.loop()
     except KeyboardInterrupt:

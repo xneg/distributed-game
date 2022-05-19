@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
-from engine.contracts import RequestType, ClientResponse, MessagePacket
-from engine.utils import generator
+from engine.contracts import RequestType, ClientResponse, ClientRequest
 from engine.node import Node
+from engine.web_server import WebServer
 
 
 @dataclass
@@ -11,23 +11,24 @@ class WriteRequest:
 
 
 class SingleClientTotalReplication(Node):
-    @generator
-    def process_message(self, sender_id: int, message_packet: MessagePacket):
-        if isinstance(message_packet.message, WriteRequest):
-            self.storage["x"] = message_packet.message.value
-            self.send_message_response(sender_id, message_packet, "Ack")
+    @WebServer.endpoint(message_type=WriteRequest)
+    def process_message(self, packet_id, sender_id, request: WriteRequest):
+        self.storage["x"] = request.value
+        self.send_message_response(packet_id, sender_id, "Ack")
 
-    @generator
-    def process_request(self, request):
+    @WebServer.endpoint(message_type=ClientRequest)
+    def process_request(self, packet_id, sender_id, request):
         if request.type == RequestType.Read:
             print(f"Node {self.id} received read request")
             value = self.storage.get("x", None)
-            self.send_response(
-                ClientResponse(
+            self.send_message_response(
+                packet_id=packet_id,
+                sender_id=sender_id,
+                response=ClientResponse(
                     type=RequestType.Read,
                     value=value if value is not None else "N",
                     id=request.id,
-                )
+                ),
             )
         else:
             print(f"Node {self.id} received write request")
@@ -42,8 +43,12 @@ class SingleClientTotalReplication(Node):
             for c in channels:
                 yield from c
 
-            self.send_response(
-                ClientResponse(type=RequestType.Write, value="+", id=request.id)
+            self.send_message_response(
+                packet_id=packet_id,
+                sender_id=sender_id,
+                response=ClientResponse(
+                    type=RequestType.Write, value="+", id=request.id
+                ),
             )
             print(f"Node {self.id} sent write response")
 

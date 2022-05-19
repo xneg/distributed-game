@@ -33,7 +33,9 @@ class WebServer(abc.ABC):
         self.__global_timer = timer
 
         class_name = f"{type(self).__module__}.{type(self).__name__}"
-        self.__endpoint_handlers = self.endpoint.all[class_name]
+        self.__endpoint_handlers = (
+            self.endpoint.all[class_name] if class_name in self.endpoint.all else {}
+        )
         self.__timer_handlers = (
             self.timer.all[class_name] if class_name in self.timer.all else []
         )
@@ -88,6 +90,10 @@ class WebServer(abc.ABC):
         if server_id not in self._other_servers:
             raise Exception(f"Server with id {server_id} doesn't exists!")
 
+        #  TODO: add logging
+        # logging.debug(
+        #     f"Client {self.id} sent {request} at {self.timer.current_epoch()}"
+        # )
         packet_id = SignalFactory.create_signal(
             self, self._other_servers[server_id], message
         )  # json.dumps(message_packet))
