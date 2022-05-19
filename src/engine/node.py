@@ -45,6 +45,7 @@ class NodeFactory:
         self._current_id = 0
         self._node_class = node_class
         self._gateway = gateway
+        self._nodes = []
 
     def add_node(self, is_leader=False):
         self._current_id = self._current_id + 1
@@ -55,4 +56,10 @@ class NodeFactory:
         )
         node.discover(self._gateway)
         self._gateway.discover(node)
+
+        for n in self._nodes:
+            n.discover(node)
+            node.discover(n)
+
+        self._nodes.append(node)
         return node

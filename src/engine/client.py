@@ -3,7 +3,6 @@ from enum import Enum
 
 from engine.consistency_checker import ConsistencyChecker
 from engine.contracts import ClientReadRequest, ClientWriteRequest
-from engine.simulator_loop import SimulatorLoop
 from engine.timer import Timer
 from engine.web_server import WebServer
 
@@ -76,8 +75,8 @@ class ClientFactory:
             client_type=client_type,
         )
         self._gateway.discover(client)
-        SimulatorLoop().add_object(client)
         self._current_id = self._current_id + 1
+        return client
 
 
 class RequestType(Enum):
