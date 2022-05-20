@@ -12,13 +12,13 @@ from engine.web_server import WebServer
 
 
 @dataclass
-class WriteRequest:
+class NodeWriteRequest:
     value: int
 
 
 class SingleClientTotalReplication(Node):
-    @WebServer.endpoint(message_type=WriteRequest)
-    def process_message(self, request: WriteRequest):
+    @WebServer.endpoint(message_type=NodeWriteRequest)
+    def process_node_write_request(self, request: NodeWriteRequest):
         self.storage["x"] = request.value
         return "Ack"
 
@@ -34,14 +34,15 @@ class SingleClientTotalReplication(Node):
     def process_write_request(self, request: ClientWriteRequest):
         print(f"Node {self.id} received write request")
         self.storage["x"] = request.value
-        waiting_responses = []
+
+        waiting_tasks = [] # var waitingTasks = new List<Task>();
 
         for node in self.other_nodes:
-            waiting_responses.append(
-                self.wait_response(node, WriteRequest(value=request.value))
+            waiting_tasks.append(
+                self.wait_response(node, NodeWriteRequest(value=request.value))
             )
 
-        for r in waiting_responses:
+        for r in waiting_tasks: # await waitingTasks.whenAll()
             yield from r
 
         print(f"Node {self.id} sent write response")

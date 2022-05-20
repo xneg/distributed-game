@@ -1,16 +1,19 @@
 import abc
 import logging
-from typing import List, Any, Dict
+from typing import Any, Dict, List
 from uuid import UUID
 
-from engine.signal import SignalFactory, MessagePacket, MessageResponse
-from engine.utils import make_timer, make_endpoint
+from engine.contracts import RequestTimeout
+from engine.signal import MessagePacket, MessageResponse, SignalFactory
+from engine.utils import make_endpoint, make_timer
 
 
-class WaitingResponse:
-    def __init__(self):
+class WaitingRequest:
+    def __init__(self, timeout=-1):
         self._trigger = False
         self._response = None
+        self._timeout = timeout
+        self._timer = 0
 
     def trigger(self, response):
         self._trigger = True
@@ -18,9 +21,10 @@ class WaitingResponse:
 
     def wait(self):
         # TODO: Need to add timeout or other break conditions
-        while not self._trigger:
-            yield None  # print(f"processing {self._message.id}")
-        return self._response
+        while not self._trigger:  # or self._timer != self._timeout:
+            self._timer = self._timer + 1
+            yield None # print(f"processing {self._timer}")
+        return RequestTimeout() if self._timer == self._timeout else self._response
 
 
 class WebServer(abc.ABC):
@@ -44,7 +48,7 @@ class WebServer(abc.ABC):
         self._other_servers: Dict[Any, WebServer] = {}
         self.__storage = {}
         self.__generators = []
-        self.__waiting_responses = {}
+        self.__waiting_requests = {}
 
         logging.info(f"{self.__id} created at {self.__global_timer.current_epoch()}")
 
@@ -54,7 +58,7 @@ class WebServer(abc.ABC):
 
     def add_message(self, message):
         if isinstance(message, MessageResponse):
-            waiting_response = self.__waiting_responses.pop(message.id, None)
+            waiting_response = self.__waiting_requests.pop(message.id, None)
             if waiting_response:
                 waiting_response.trigger(message.response)
         elif isinstance(message, MessagePacket):
@@ -97,7 +101,7 @@ class WebServer(abc.ABC):
 
         self.__local_timer = self.__local_timer + 1
 
-    def wait_response(self, server_id, message):
+    def wait_response(self, server_id, message, timeout=-1):
         if server_id not in self._other_servers:
             raise Exception(f"Server with id {server_id} doesn't exists!")
 
@@ -107,9 +111,9 @@ class WebServer(abc.ABC):
         packet_id = SignalFactory.create_signal(
             self, self._other_servers[server_id], message
         )  # json.dumps(message_packet))
-        waiting_response = WaitingResponse()
-        self.__waiting_responses[packet_id] = waiting_response
-        return waiting_response.wait()
+        waiting_request = WaitingRequest(timeout=timeout)
+        self.__waiting_requests[packet_id] = waiting_request
+        return waiting_request.wait()
 
     def send_message(self, server_id, message):
         self.wait_response(server_id, message)

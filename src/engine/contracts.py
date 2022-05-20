@@ -32,3 +32,8 @@ class ClientReadResponse:
 @dataclass(frozen=True)
 class LeaderNotification:
     id: Any
+
+
+@dataclass
+class RequestTimeout:
+    pass
