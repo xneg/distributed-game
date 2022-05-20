@@ -97,12 +97,12 @@ class WebServer(abc.ABC):
 
         self.__local_timer = self.__local_timer + 1
 
-    def get_response(self, server_id, message):
+    def wait_response(self, server_id, message):
         if server_id not in self._other_servers:
             raise Exception(f"Server with id {server_id} doesn't exists!")
 
         logging.debug(
-            f"{self.id} sent {message} to {server_id} at {self.timer.current_epoch()}"
+            f"{self.id} sent {message} to {server_id} at {self.__global_timer.current_epoch()}"
         )
         packet_id = SignalFactory.create_signal(
             self, self._other_servers[server_id], message
@@ -112,7 +112,7 @@ class WebServer(abc.ABC):
         return waiting_response.wait()
 
     def send_message(self, server_id, message):
-        self.get_response(server_id, message)
+        self.wait_response(server_id, message)
 
     def __send_message_response(self, packet_id: UUID, sender_id: Any, response):
         SignalFactory.create_response(

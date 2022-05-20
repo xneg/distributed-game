@@ -38,7 +38,7 @@ class SingleClientTotalReplication(Node):
 
         for node in self.other_nodes:
             waiting_responses.append(
-                self.get_response(node, WriteRequest(value=request.value))
+                self.wait_response(node, WriteRequest(value=request.value))
             )
 
         for r in waiting_responses:

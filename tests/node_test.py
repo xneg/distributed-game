@@ -25,7 +25,7 @@ class TestNode(Node):
     @Node.timer(interval=1)
     def waiting_timer(self):
         if self.id == 1:
-            waiting_response = self.get_response(2, "Hello!")
+            waiting_response = self.wait_response(2, "Hello!")
             yield from waiting_response
             self.mailbox = "Ack!"
 
