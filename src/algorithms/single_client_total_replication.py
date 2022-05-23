@@ -39,7 +39,7 @@ class SingleClientTotalReplication(Node):
 
         for node in self.other_nodes:
             waiting_tasks.append(
-                self.wait_response(node, NodeWriteRequest(value=request.value))
+                self.send_message(node, NodeWriteRequest(value=request.value))
             )
 
         for r in waiting_tasks: # await waitingTasks.whenAll()

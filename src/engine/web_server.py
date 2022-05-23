@@ -20,8 +20,7 @@ class WaitingRequest:
         self._response = response
 
     def wait(self):
-        # TODO: Need to add timeout or other break conditions
-        while not self._trigger:  # or self._timer != self._timeout:
+        while not self._trigger and self._timer != self._timeout:
             self._timer = self._timer + 1
             yield None # print(f"processing {self._timer}")
         return RequestTimeout() if self._timer == self._timeout else self._response
@@ -101,7 +100,7 @@ class WebServer(abc.ABC):
 
         self.__local_timer = self.__local_timer + 1
 
-    def wait_response(self, server_id, message, timeout=-1):
+    def send_message(self, server_id, message, timeout=-1):
         if server_id not in self._other_servers:
             raise Exception(f"Server with id {server_id} doesn't exists!")
 
@@ -114,9 +113,6 @@ class WebServer(abc.ABC):
         waiting_request = WaitingRequest(timeout=timeout)
         self.__waiting_requests[packet_id] = waiting_request
         return waiting_request.wait()
-
-    def send_message(self, server_id, message):
-        self.wait_response(server_id, message)
 
     def __send_message_response(self, packet_id: UUID, sender_id: Any, response):
         SignalFactory.create_response(
