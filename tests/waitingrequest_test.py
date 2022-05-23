@@ -1,5 +1,3 @@
-import itertools
-
 import pytest
 
 from engine.contracts import RequestTimeout
@@ -102,7 +100,7 @@ def test_parallel_tasks_wait_any_count():
     with pytest.raises(StopIteration):
         next(c)
 
-    assert caller.result == ['Ok!', None, 'Ok!', None]
+    assert caller.result == ["Ok!", None, "Ok!", None]
 
 
 def test_parallel_tasks_wait_any_by_timeout():
@@ -126,21 +124,6 @@ def test_parallel_tasks_wait_any_by_timeout():
     assert caller.result == [RequestTimeout(), RequestTimeout(), None, None]
 
 
-def test_xx():
-    caller = Caller()
-    parallel_tasks = ParallelTasks()
-
-    parallel_tasks.add(WaitingRequest(timeout=2))
-    parallel_tasks.add(WaitingRequest(timeout=2))
-    c = caller.call(parallel_tasks.wait_all())
-
-    for i in range(0, 4):
-        next(c)
-
-    # with pytest.raises(StopIteration):
-    #     next(c)
-
-
 def test_parallel_tasks_wait_all():
     wait_requests = []
     parallel_tasks = ParallelTasks()
@@ -153,10 +136,15 @@ def test_parallel_tasks_wait_all():
 
     c = caller.call(parallel_tasks.wait_all())
 
-    for i in range(0, 15):
+    for i in range(0, 6):
         next(c)
-    #
-    # with pytest.raises(StopIteration):
-    #     next(c)
-    #
-    # assert caller.result == [RequestTimeout(), RequestTimeout(), None, None]
+
+    with pytest.raises(StopIteration):
+        next(c)
+
+    assert caller.result == [
+        RequestTimeout(),
+        RequestTimeout(),
+        RequestTimeout(),
+        RequestTimeout(),
+    ]

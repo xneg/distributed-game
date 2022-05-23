@@ -35,14 +35,14 @@ class SingleClientTotalReplication(Node):
         print(f"Node {self.id} received write request")
         self.storage["x"] = request.value
 
-        waiting_tasks = [] # var waitingTasks = new List<Task>();
+        waiting_tasks = []  # var waitingTasks = new List<Task>();
 
         for node in self.other_nodes:
             waiting_tasks.append(
                 self.send_message(node, NodeWriteRequest(value=request.value))
             )
 
-        for r in waiting_tasks: # await waitingTasks.whenAll()
+        for r in waiting_tasks:  # await waitingTasks.whenAll()
             yield from r
 
         print(f"Node {self.id} sent write response")

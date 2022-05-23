@@ -25,7 +25,9 @@ class WaitingRequest:
         while not self._trigger and self._timer != self._timeout:
             self._timer = self._timer + 1
             yield False  # Important!
-        self.result = RequestTimeout() if self._timer == self._timeout else self._response
+        self.result = (
+            RequestTimeout() if self._timer == self._timeout else self._response
+        )
         return self.result
 
 
@@ -43,9 +45,7 @@ class ParallelTasks:
         return [r.result for r in self._requests]
 
     def wait_all(self):
-        waits = [r.wait() for r in self._requests]
-        yield from itertools.chain(*waits)
-        return [r.result for r in self._requests]
+        return self.wait_any(len(self._requests))
 
     def __check(self, count, tuple):
         r = sum(x is None for x in tuple) < count
