@@ -22,7 +22,7 @@ class WaitingRequest:
     def wait(self):
         while not self._trigger and self._timer != self._timeout:
             self._timer = self._timer + 1
-            yield None # print(f"processing {self._timer}")
+            yield False  # Important!
         return RequestTimeout() if self._timer == self._timeout else self._response
 
 
