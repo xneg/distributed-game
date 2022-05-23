@@ -1,4 +1,5 @@
 import abc
+import itertools
 import logging
 from typing import Any, Dict, List
 from uuid import UUID
@@ -14,6 +15,7 @@ class WaitingRequest:
         self._response = None
         self._timeout = timeout
         self._timer = 0
+        self.result = None
 
     def trigger(self, response):
         self._trigger = True
@@ -23,7 +25,33 @@ class WaitingRequest:
         while not self._trigger and self._timer != self._timeout:
             self._timer = self._timer + 1
             yield False  # Important!
-        return RequestTimeout() if self._timer == self._timeout else self._response
+        self.result = RequestTimeout() if self._timer == self._timeout else self._response
+        return self.result
+
+
+class ParallelTasks:
+    def __init__(self):
+        self._requests = []
+
+    def add(self, request):
+        self._requests.append(request)
+
+    def wait_any(self, min_count):
+        waits = [r.wait() for r in self._requests]
+        zip = itertools.zip_longest(*waits)
+        yield from itertools.takewhile(lambda x: self.__check(min_count, x), zip)
+        return [r.result for r in self._requests]
+
+    def wait_all(self):
+        waits = [r.wait() for r in self._requests]
+        yield from itertools.chain(*waits)
+        return [r.result for r in self._requests]
+
+    def __check(self, count, tuple):
+        r = sum(x is None for x in tuple) < count
+        if r:
+            return True
+        return False
 
 
 class WebServer(abc.ABC):
