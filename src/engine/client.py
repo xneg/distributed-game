@@ -34,7 +34,7 @@ class Client(WebServer):
         request = self._create_request()
 
         self._checker.add_event(client_id=self.id, event=request)
-        response = self.send_message(self._gateway_id, request)
+        response = self.send_message(self._gateway_id, request).wait()
         response = yield from response
 
         self._checker.add_event(client_id=self.id, event=response)

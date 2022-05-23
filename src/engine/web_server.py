@@ -48,14 +48,8 @@ class ParallelTasks:
         yield from itertools.takewhile(lambda x: self.__check(min_count, x), zip)
         return [r.result for r in self._requests]
 
-    def wait_all(self):
-        return self.wait_any(len(self._requests))
-
     def __check(self, count, tuple):
-        r = sum(x == self.__marker for x in tuple) < count
-        if r:
-            return True
-        return False
+        return sum(x == self.__marker for x in tuple) < count
 
 
 class WebServer(abc.ABC):
@@ -144,7 +138,16 @@ class WebServer(abc.ABC):
         )  # json.dumps(message_packet))
         waiting_request = WaitingRequest(timeout=timeout)
         self.__waiting_requests[packet_id] = waiting_request
-        return waiting_request.wait()
+        return waiting_request
+
+    def wait_any(self, requests, min_count):
+        parallel = ParallelTasks()
+        for r in requests:
+            parallel.add(r)
+        return parallel.wait_any(min_count)
+
+    def wait_all(self, requests):
+        return self.wait_any(requests, len(requests))
 
     def __send_message_response(self, packet_id: UUID, sender_id: Any, response):
         SignalFactory.create_response(

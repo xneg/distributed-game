@@ -1,6 +1,6 @@
 import logging
 
-from algorithms.single_client_total_replication import SingleClientTotalReplication
+from algorithms.single_client_sync_replication import SingleClientSyncReplication
 from engine.client import Client, ClientFactory
 from engine.consistency_checker import ConsistencyChecker
 from engine.gateway import Gateway
@@ -16,7 +16,7 @@ Client.max_pause = 6
 
 if __name__ == "__main__":
     gateway = Gateway(server_id="gateway", timer=Timer())
-    node_factory = NodeFactory(SingleClientTotalReplication, gateway)
+    node_factory = NodeFactory(SingleClientSyncReplication, gateway)
     client_factory = ClientFactory(gateway)
 
     nodes = []

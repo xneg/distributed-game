@@ -134,7 +134,7 @@ def test_parallel_tasks_wait_all():
         wait_requests.append(request)
         parallel_tasks.add(request)
 
-    c = caller.call(parallel_tasks.wait_all())
+    c = caller.call(parallel_tasks.wait_any(min_count=4))
 
     for i in range(0, 6):
         next(c)

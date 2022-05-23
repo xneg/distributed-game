@@ -18,14 +18,14 @@ class Gateway(WebServer):
     @WebServer.endpoint(ClientWriteRequest)
     def _process_write_request(self, request: ClientWriteRequest):
         target_node = self._leader_node if self._leader_node else self._round_robin()
-        response = self.send_message(target_node.id, request)
+        response = self.send_message(target_node.id, request).wait()
         result = yield from response
         return result
 
     @WebServer.endpoint(ClientReadRequest)
     def _process_read_request(self, request: ClientReadRequest):
         target_node = self._leader_node if self._leader_node else self._round_robin()
-        response = self.send_message(target_node.id, request)
+        response = self.send_message(target_node.id, request).wait()
         result = yield from response
         return result
 
