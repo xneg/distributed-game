@@ -24,7 +24,7 @@ class WaitingRequest:
     def wait(self):
         while not self._trigger and self._timer != self._timeout:
             self._timer = self._timer + 1
-            yield False  # Important!
+            yield
         self.result = (
             RequestTimeout() if self._timer == self._timeout else self._response
         )
@@ -32,15 +32,19 @@ class WaitingRequest:
 
 
 class ParallelTasks:
+    class Marker:
+        pass
+
     def __init__(self):
         self._requests = []
+        self.__marker = ParallelTasks.Marker()
 
     def add(self, request):
         self._requests.append(request)
 
     def wait_any(self, min_count):
         waits = [r.wait() for r in self._requests]
-        zip = itertools.zip_longest(*waits)
+        zip = itertools.zip_longest(*waits, fillvalue=self.__marker)
         yield from itertools.takewhile(lambda x: self.__check(min_count, x), zip)
         return [r.result for r in self._requests]
 
@@ -48,7 +52,7 @@ class ParallelTasks:
         return self.wait_any(len(self._requests))
 
     def __check(self, count, tuple):
-        r = sum(x is None for x in tuple) < count
+        r = sum(x == self.__marker for x in tuple) < count
         if r:
             return True
         return False
