@@ -1,7 +1,7 @@
 import abc
 import itertools
 import logging
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Generator
 from uuid import UUID
 
 from engine.contracts import RequestTimeout
@@ -95,7 +95,7 @@ class WebServer(abc.ABC):
 
     def __process_request(self, handler, packet_id, sender_id, message):
         result = yield from handler(self, message)
-        if result:
+        if result is not None:
             self.__send_message_response(packet_id, sender_id, result)
 
     def process(self):
@@ -140,11 +140,13 @@ class WebServer(abc.ABC):
         self.__waiting_requests[packet_id] = waiting_request
         return waiting_request
 
-    def wait_any(self, requests, min_count):
+    def wait_any(self, requests: object, min_count: int) -> Generator[Any, Any, List]:
         parallel = ParallelTasks()
         for r in requests:
             parallel.add(r)
-        return parallel.wait_any(min_count)
+
+        p = parallel.wait_any(min_count)
+        return p
 
     def wait_all(self, requests):
         return self.wait_any(requests, len(requests))
