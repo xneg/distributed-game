@@ -1,7 +1,8 @@
 import logging
 
 from algorithms.single_client_sync_replication import SingleClientSyncReplication
-from engine.client import Client, ClientFactory
+from algorithms.single_client_versioned_majority import SingleClientVersionedMajority
+from engine.client import Client, ClientFactory, ClientType
 from engine.consistency_checker import ConsistencyChecker
 from engine.gateway import Gateway
 from engine.node import NodeFactory
@@ -16,16 +17,16 @@ Client.max_pause = 6
 
 if __name__ == "__main__":
     gateway = Gateway(server_id="gateway", timer=Timer())
-    node_factory = NodeFactory(SingleClientSyncReplication, gateway)
+    node_factory = NodeFactory(SingleClientVersionedMajority, gateway)
     client_factory = ClientFactory(gateway)
 
     nodes = []
-    for i in range(0, 3):
+    for i in range(0, 5):
         nodes.append(node_factory.add_node())
 
     clients = []
     for i in range(0, 1):
-        clients.append(client_factory.add_client())
+        clients.append(client_factory.add_client(client_type=ClientType.Both))
 
     simulator = SimulatorLoop(
         timer=Timer(),
