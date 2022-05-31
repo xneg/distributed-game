@@ -38,6 +38,7 @@ class WriteRequest:
     version: int
 
 
+# noinspection PyTypeChecker
 class SingleClientVersionedMajority(Node):
     @property
     def write_quorum(self):
@@ -49,12 +50,12 @@ class SingleClientVersionedMajority(Node):
 
     @WebServer.endpoint(message_type=ClientReadRequest)
     def process_read_request(self, request):
-        waiting = []
-        for node in self.other_nodes:
-            waiting.append(self.send_message(node, ReadRequest()))
-        responses = yield from self.wait_any(waiting, min_count=self.read_quorum)
+        responses = yield from self.wait_for_responses(
+            request=ReadRequest(),
+            check_response=lambda x: isinstance(x, ReadResponse),
+            count=self.read_quorum,
+        )
 
-        responses = [r for r in responses if r is not None]
         value, version = self.get_value()
         responses.append(ReadResponse(value=value, version=version))
 
@@ -63,25 +64,22 @@ class SingleClientVersionedMajority(Node):
 
     @WebServer.endpoint(message_type=ClientWriteRequest)
     def process_write_request(self, request: ClientWriteRequest):
-        waiting = []
-        for node in self.other_nodes:
-            waiting.append(self.send_message(node, GetVersionRequest()))
-        responses = yield from self.wait_any(waiting, min_count=self.write_quorum)
+        responses = yield from self.wait_for_responses(
+            request=GetVersionRequest(),
+            check_response=lambda x: isinstance(x, VersionResponse),
+            count=self.write_quorum,
+        )
 
-        responses = [r for r in responses if r is not None]
         version = max(responses, key=attrgetter("version")).version
         version = max(version, self.get_version()) + 1
         self.storage["x"] = (request.value, version)
 
-        waiting = []
-        for node in [r.id for r in responses]:
-            waiting.append(
-                self.send_message(
-                    node, WriteRequest(value=request.value, version=version)
-                )
-            )
+        yield from self.wait_for_responses(
+            request=WriteRequest(value=request.value, version=version),
+            check_response=lambda x: x == "Ack",
+            count=len(responses)
+        )
 
-        yield from self.wait_all(waiting)
         return ClientWriteResponse(result=ResponseType.Success)
 
     @WebServer.endpoint(message_type=ReadRequest)
