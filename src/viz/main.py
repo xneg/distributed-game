@@ -43,8 +43,11 @@ def run():
             objects = simulator.objects
             with hold_canvas():
                 canvas.clear()
-                canvas.font = "32px serif"
-                canvas.fill_text(len(objects), 10, 32)
+                canvas.font = "20px serif"
+                i = 0
+                for o in objects:
+                    canvas.fill_text(type(o).__name__, 10, 32 + 32 * i)
+                    i = i + 1
             time.sleep(0.3)
     except KeyboardInterrupt:
         print("finished!")
