@@ -1,18 +1,18 @@
 import time
 
-from IPython.core.display_functions import display
-from ipycanvas import Canvas, hold_canvas
+from ipycanvas import hold_canvas
 
 from algorithms.single_client_total_replication import SingleClientTotalReplication
-from engine.client import ClientFactory
+from engine.client import ClientFactory, Client
 from engine.consistency_checker import ConsistencyChecker
 from engine.gateway import Gateway
-from engine.node import NodeFactory
+from engine.node import NodeFactory, Node
 from engine.simulator_loop import SimulatorLoop
 from engine.timer import Timer
+from viz.utils import draw_client, draw_background, draw_node
 
 
-def run():
+def run(background, nodes_layer):
     gateway = Gateway(server_id="gateway", timer=Timer())
     node_factory = NodeFactory(SingleClientTotalReplication, gateway)
     client_factory = ClientFactory(gateway)
@@ -32,22 +32,22 @@ def run():
         sleep_interval=0.3,
     )
 
-    canvas = Canvas()
+    draw_background(background)
 
-    display(canvas)
-
-    # objects = simulator.objects
     try:
         while True:
             simulator.process()
             objects = simulator.objects
-            with hold_canvas():
-                canvas.clear()
-                canvas.font = "20px serif"
-                i = 0
-                for o in objects:
-                    canvas.fill_text(type(o).__name__, 10, 32 + 32 * i)
-                    i = i + 1
+            clients = [o for o in objects if isinstance(o, Client)]
+            nodes = [o for o in objects if issubclass(type(o), Node)]
+            with hold_canvas(nodes_layer):
+                nodes_layer.reset_transform()
+                nodes_layer.clear()
+                for idx, c in enumerate(clients):
+                    draw_client(nodes_layer, idx, c.id, len(clients))
+                nodes_layer.translate(nodes_layer.width // 2, nodes_layer.height // 4)
+                for idx, n in enumerate(nodes):
+                    draw_node(nodes_layer, idx, n.id, len(nodes))
             time.sleep(0.3)
     except KeyboardInterrupt:
         print("finished!")
