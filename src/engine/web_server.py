@@ -1,7 +1,7 @@
 import abc
 import itertools
 import logging
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Generator, Callable
 from uuid import UUID
 
 from engine.contracts import RequestTimeout
@@ -24,7 +24,7 @@ class WaitingRequest:
     def wait(self):
         while not self._trigger and self._timer != self._timeout:
             self._timer = self._timer + 1
-            yield False  # Important!
+            yield
         self.result = (
             RequestTimeout() if self._timer == self._timeout else self._response
         )
@@ -32,28 +32,33 @@ class WaitingRequest:
 
 
 class ParallelTasks:
-    def __init__(self):
+    class Marker:
+        pass
+
+    def __init__(self, shared_timeout=-1):
         self._requests = []
+        self.__marker = ParallelTasks.Marker()
+        self._shared_timeout = shared_timeout
+        self._timer = -1
 
     def add(self, request):
         self._requests.append(request)
 
-    def wait_any(self, min_count):
+    def wait_any(self, min_count, condition: Callable[[Any], bool] = None):
         waits = [r.wait() for r in self._requests]
-        zip = itertools.zip_longest(*waits)
-        yield from itertools.takewhile(lambda x: self.__check(min_count, x), zip)
+        zip = itertools.zip_longest(*waits, fillvalue=self.__marker)
+        yield from itertools.takewhile(
+            lambda x: self.__check(min_count, x, condition), zip
+        )
         return [r.result for r in self._requests]
 
-    def wait_all(self):
-        waits = [r.wait() for r in self._requests]
-        yield from itertools.chain(*waits)
-        return [r.result for r in self._requests]
-
-    def __check(self, count, tuple):
-        r = sum(x is None for x in tuple) < count
-        if r:
-            return True
-        return False
+    def __check(self, count, tuple, condition):
+        self._timer = self._timer + 1
+        condition = condition if condition else lambda x: x == self.__marker
+        return (
+            sum(condition(x) for x in tuple) < count
+            and self._timer != self._shared_timeout
+        )
 
 
 class WebServer(abc.ABC):
@@ -99,7 +104,7 @@ class WebServer(abc.ABC):
 
     def __process_request(self, handler, packet_id, sender_id, message):
         result = yield from handler(self, message)
-        if result:
+        if result is not None:
             self.__send_message_response(packet_id, sender_id, result)
 
     def process(self):
@@ -142,7 +147,24 @@ class WebServer(abc.ABC):
         )  # json.dumps(message_packet))
         waiting_request = WaitingRequest(timeout=timeout)
         self.__waiting_requests[packet_id] = waiting_request
-        return waiting_request.wait()
+        return waiting_request
+
+    def wait_any(
+        self,
+        requests: object,
+        min_count: int,
+        timeout: int = -1,
+        condition: Callable[[Any], bool] = None,
+    ) -> Generator[Any, Any, List]:
+        parallel = ParallelTasks(shared_timeout=timeout)
+        for r in requests:
+            parallel.add(r)
+
+        p = parallel.wait_any(min_count, condition)
+        return p
+
+    def wait_all(self, requests):
+        return self.wait_any(requests, len(requests))
 
     def __send_message_response(self, packet_id: UUID, sender_id: Any, response):
         SignalFactory.create_response(

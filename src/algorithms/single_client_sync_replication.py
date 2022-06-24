@@ -16,7 +16,7 @@ class NodeWriteRequest:
     value: int
 
 
-class SingleClientTotalReplication(Node):
+class SingleClientSyncReplication(Node):
     @WebServer.endpoint(message_type=NodeWriteRequest)
     def process_node_write_request(self, request: NodeWriteRequest):
         self.storage["x"] = request.value
@@ -35,15 +35,14 @@ class SingleClientTotalReplication(Node):
         print(f"Node {self.id} received write request")
         self.storage["x"] = request.value
 
-        waiting_tasks = [] # var waitingTasks = new List<Task>();
+        waiting_tasks = []
 
         for node in self.other_nodes:
             waiting_tasks.append(
                 self.send_message(node, NodeWriteRequest(value=request.value))
             )
 
-        for r in waiting_tasks: # await waitingTasks.whenAll()
-            yield from r
+        yield from self.wait_all(waiting_tasks)
 
         print(f"Node {self.id} sent write response")
         return ClientWriteResponse(result=ResponseType.Success)

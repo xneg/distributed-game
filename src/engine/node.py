@@ -1,4 +1,5 @@
 import abc
+from typing import List, Any
 
 from engine.contracts import ClientReadRequest, ClientWriteRequest, LeaderNotification
 from engine.timer import Timer
@@ -15,6 +16,16 @@ class Node(WebServer):
     def discover_gateway(self, web_server: "WebServer"):
         self.discover(web_server)
         self.__gateway_id = web_server.id
+
+    def wait_for_responses(self, request, check_response, count, timeout=-1) -> List[Any]:
+        waiting = []
+
+        for node in self.other_nodes:
+            waiting.append(self.send_message(node, request))
+        responses = yield from self.wait_any(
+            waiting, min_count=count, timeout=timeout, condition=check_response
+        )
+        return [r for r in responses if r is not None]
 
     @property
     def is_leader(self):
