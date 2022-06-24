@@ -14,6 +14,8 @@ class Signal:
         self._timer = 0
         self._destroyed = False
         self._send_message = partial(self.__send_message, recipient, message_packet)
+        self._from = None
+        self._to = None
 
         SimulatorLoop().add_object(self)
 
@@ -26,6 +28,27 @@ class Signal:
 
     def destroyed(self):
         return self._destroyed
+
+    # TODO: do this more elegant
+    def set_from_to(self, from_node, to_node):
+        self._from = from_node
+        self._to = to_node
+
+    @property
+    def from_node(self):
+        return self._from
+
+    @property
+    def to_node(self):
+        return self._to
+
+    @property
+    def progress(self):
+        return self._timer / self._duration
+
+    @property
+    def speed(self):
+        return 1 / self._duration
 
     @staticmethod
     def __send_message(recipient, message):
@@ -44,19 +67,22 @@ class SignalFactory:
             else random.randrange(1, SignalFactory.max_duration + 1)
         )
         message_packet = MessagePacket(sender, message)
-        Signal(recipient=recipient, message_packet=message_packet, duration=duration)
-
+        signal = Signal(recipient=recipient, message_packet=message_packet, duration=duration)
+        # TODO: BAD CODE!
+        signal.set_from_to(sender.id, recipient.id)
         return message_packet.id
 
     @staticmethod
-    def create_response(recipient, packet_id, message):
+    def create_response(sender, recipient, packet_id, message):
         duration = (
             SignalFactory.const_time
             if SignalFactory.const_time
             else random.randrange(1, SignalFactory.max_duration + 1)
         )
         message_response = MessageResponse(packet_id, message)
-        Signal(recipient=recipient, message_packet=message_response, duration=duration)
+        signal = Signal(recipient=recipient, message_packet=message_response, duration=duration)
+        # TODO: BAD CODE!
+        signal.set_from_to(sender.id, recipient.id)
 
 
 class MessagePacket:
