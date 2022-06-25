@@ -2,7 +2,7 @@ import time
 
 from ipycanvas import hold_canvas
 
-from algorithms.single_client_total_replication import SingleClientTotalReplication
+from algorithms.single_client_versioned_majority import SingleClientVersionedMajority
 from engine.client import ClientFactory, Client, ClientType
 from engine.consistency_checker import ConsistencyChecker
 from engine.gateway import Gateway
@@ -19,7 +19,7 @@ def run(client_count, nodes_count, background, nodes_layer, signals_layer):
     ratio = int(simulator_timer_interval // draw_timer_interval)
 
     gateway = Gateway(server_id="gateway", timer=Timer())
-    node_factory = NodeFactory(SingleClientTotalReplication, gateway)
+    node_factory = NodeFactory(SingleClientVersionedMajority, gateway)
     client_factory = ClientFactory(gateway)
 
     nodes = []
@@ -28,7 +28,7 @@ def run(client_count, nodes_count, background, nodes_layer, signals_layer):
 
     clients = []
     for i in range(0, client_count):
-        clients.append(client_factory.add_client(client_type=ClientType.Write))
+        clients.append(client_factory.add_client())
 
     simulator = SimulatorLoop(
         timer=Timer(),
@@ -66,10 +66,7 @@ def draw_signals(object_positions, signals, draw_progress, canvas):
         # This will not work with both clients and nodes
         # canvas.translate(canvas.width // 2, canvas.height // 4)
         for s in signals:
-            if (
-                    s.from_node not in object_positions
-                    or s.to_node not in object_positions
-            ):
+            if s.from_node not in object_positions or s.to_node not in object_positions:
                 continue
             draw_signal(
                 canvas,
@@ -87,15 +84,11 @@ def draw_nodes(clients, nodes, gateway, canvas):
         object_positions = {}
 
         for idx, c in enumerate(clients):
-            object_positions[c.id] = draw_client(
-                canvas, idx, c.id, len(clients)
-            )
+            object_positions[c.id] = draw_client(canvas, idx, c.id, len(clients))
         object_positions[gateway.id] = draw_gateway(canvas)
 
         # canvas.translate(canvas.width // 2, canvas.height // 4)
         center = (canvas.width // 2, canvas.height // 4)
         for idx, n in enumerate(nodes):
-            object_positions[n.id] = draw_node(
-                canvas, center, idx, n.id, len(nodes)
-            )
+            object_positions[n.id] = draw_node(canvas, center, idx, n.id, len(nodes))
     return object_positions
