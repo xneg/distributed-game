@@ -6,6 +6,7 @@ from ipywidgets import Output
 from algorithms.single_client_versioned_majority import SingleClientVersionedMajority
 from engine.client import ClientFactory, Client, ClientType
 from engine.consistency_checker import ConsistencyChecker
+from engine.contracts import ClientWriteRequest, ClientReadRequest, ClientWriteResponse, ClientReadResponse
 from engine.gateway import Gateway
 from engine.node import NodeFactory, Node
 from engine.signal import Signal
@@ -94,13 +95,23 @@ def _draw_signals(object_positions, signals, draw_progress, canvas):
         canvas.reset_transform()
         canvas.clear()
 
-        # This will not work with both clients and nodes
-        # canvas.translate(canvas.width // 2, canvas.height // 4)
         for s in signals:
-            if s.from_node not in object_positions or s.to_node not in object_positions:
-                continue
+            info = ''
+            message = s.message
+            if isinstance(message, ClientWriteRequest):
+                info = f"W{message.value}"
+            elif isinstance(message, ClientReadRequest):
+                info = f"R"
+            elif isinstance(message, ClientWriteResponse):
+                info = f"W+"
+            elif isinstance(message, ClientReadResponse):
+                info = f"R{message.value}"
+            else:
+                info = str(s.message)
+
             draw_signal(
                 canvas,
+                info,
                 object_positions[s.from_node],
                 object_positions[s.to_node],
                 s.progress + s.speed * draw_progress,
@@ -121,5 +132,5 @@ def _draw_nodes(clients, nodes, gateway, canvas):
         # canvas.translate(canvas.width // 2, canvas.height // 4)
         center = (canvas.width // 2, canvas.height // 4)
         for idx, n in enumerate(nodes):
-            object_positions[n.id] = draw_node(canvas, center, idx, n.id, len(nodes))
+            object_positions[n.id] = draw_node(canvas, center, idx, n.id, str(n.storage), len(nodes))
     return object_positions

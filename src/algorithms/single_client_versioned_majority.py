@@ -12,10 +12,12 @@ from engine.node import Node
 from engine.web_server import WebServer
 
 
+@dataclass
 class ReadRequest:
     pass
 
 
+@dataclass
 class GetVersionRequest:
     pass
 
