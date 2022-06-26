@@ -168,7 +168,7 @@ class WebServer(abc.ABC):
 
     def __send_message_response(self, packet_id: UUID, sender_id: Any, response):
         SignalFactory.create_response(
-            self._other_servers[sender_id], packet_id, response
+            self, self._other_servers[sender_id], packet_id, response
         )
 
     @property

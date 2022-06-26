@@ -22,24 +22,25 @@ class ConsistencyChecker(metaclass=Singleton):
         self._client_lines[client_id].append((self._timer.current_epoch(), event))
 
     def process(self):
-        line = str(self._timer.current_epoch()) + " "
-        for client in self._client_lines:
-            (time, event) = self._client_lines[client][-1]
-            if time != self._timer.current_epoch():
-                line = line + (
-                    "|"
-                    if isinstance(event, ClientReadRequest)
-                    or isinstance(event, ClientWriteRequest)
-                    else " "
-                )
-            else:
-                if isinstance(event, ClientReadRequest):
-                    line = line + "R"
-                elif isinstance(event, ClientReadResponse):
-                    line = line + "R" + str(event.value)
-                elif isinstance(event, ClientWriteRequest):
-                    line = line + "W" + str(event.value)
-                elif isinstance(event, ClientWriteResponse):
-                    line = line + "W+"
-            line = line + " " * (4 - len(line) % 4)
-        print(line)
+        pass
+        # line = str(self._timer.current_epoch()) + " "
+        # for client in self._client_lines:
+        #     (time, event) = self._client_lines[client][-1]
+        #     if time != self._timer.current_epoch():
+        #         line = line + (
+        #             "|"
+        #             if isinstance(event, ClientReadRequest)
+        #             or isinstance(event, ClientWriteRequest)
+        #             else " "
+        #         )
+        #     else:
+        #         if isinstance(event, ClientReadRequest):
+        #             line = line + "R"
+        #         elif isinstance(event, ClientReadResponse):
+        #             line = line + "R" + str(event.value)
+        #         elif isinstance(event, ClientWriteRequest):
+        #             line = line + "W" + str(event.value)
+        #         elif isinstance(event, ClientWriteResponse):
+        #             line = line + "W+"
+        #     line = line + " " * (4 - len(line) % 4)
+        # print(line)

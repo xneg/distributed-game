@@ -1,0 +1,3 @@
+ipycanvas
+ipykernel
+jupytext
