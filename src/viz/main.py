@@ -3,7 +3,6 @@ import time
 from ipycanvas import hold_canvas
 from ipywidgets import Output
 
-from algorithms.single_client_versioned_majority import SingleClientVersionedMajority
 from engine.client import ClientFactory, Client, ClientType
 from engine.consistency_checker import ConsistencyChecker
 from engine.contracts import ClientWriteRequest, ClientReadRequest, ClientWriteResponse, ClientReadResponse
@@ -18,7 +17,7 @@ from viz.utils import draw_client, draw_background, draw_node, draw_signal, draw
 class Runner:
     out = Output()
 
-    def __init__(self, clients_count, nodes_count, canvas):
+    def __init__(self, clients_count, nodes_count, canvas, node_type):
         self._finished = False
         self._paused = False
         self._clients_count = clients_count
@@ -26,6 +25,7 @@ class Runner:
         self._background = canvas[0]
         self._nodes_layer = canvas[1]
         self._signals_layer = canvas[2]
+        self._node_type = node_type
         canvas.on_key_down(self.on_keyboard_event)
 
     def run(self):
@@ -34,7 +34,7 @@ class Runner:
         ratio = int(simulator_timer_interval // draw_timer_interval)
 
         gateway = Gateway(server_id="gateway", timer=Timer())
-        node_factory = NodeFactory(SingleClientVersionedMajority, gateway)
+        node_factory = NodeFactory(self._node_type, gateway)
         client_factory = ClientFactory(gateway)
 
         nodes = []
