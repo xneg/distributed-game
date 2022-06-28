@@ -54,11 +54,14 @@ class ParallelTasks:
 
     def __check(self, count, tuple, condition):
         self._timer = self._timer + 1
-        condition = condition if condition else lambda x: x == self.__marker
-        return (
-            sum(condition(x) for x in tuple) < count
-            and self._timer != self._shared_timeout
+
+        sum_results = (
+            sum(condition(r.result) for r in self._requests)
+            if condition
+            else sum(1 for x in tuple if x == self.__marker)
         )
+
+        return sum_results < count and self._timer != self._shared_timeout
 
 
 class WebServer(abc.ABC):
@@ -160,8 +163,7 @@ class WebServer(abc.ABC):
         for r in requests:
             parallel.add(r)
 
-        p = parallel.wait_any(min_count, condition)
-        return p
+        return parallel.wait_any(min_count, condition)
 
     def wait_all(self, requests):
         return self.wait_any(requests, len(requests))
