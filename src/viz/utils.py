@@ -20,7 +20,8 @@ SIGNAL_COLOR = "#0081A7" # "#03B5AA"
 
 def draw_background(canvas):
     canvas.fill_style = NODES_BACKGROUND
-    canvas.fill_rect(0, 0, canvas.width, canvas.height * 4 // 3)
+    canvas.fill_circle(canvas.width // 2, canvas.height // 4 + 30, 120)
+    # canvas.fill_rect(0, 0, canvas.width, canvas.height * 4 // 3)
     canvas.fill_style = CLIENTS_BACKGROUND
     canvas.fill_rect(0, canvas.height * 3 // 4, canvas.width, canvas.height // 2)
     canvas.fill_style = GATEWAY_BACKGROUND
