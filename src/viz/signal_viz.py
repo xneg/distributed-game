@@ -1,6 +1,10 @@
-from engine.contracts import ClientWriteRequest, ClientReadRequest, ClientWriteResponse, ClientReadResponse
-
-SIGNAL_COLOR = "#0081A7"  # "#03B5AA"
+from engine.contracts import (
+    ClientWriteRequest,
+    ClientReadRequest,
+    ClientWriteResponse,
+    ClientReadResponse,
+)
+from viz.utils import SIGNAL_COLOR
 
 
 class SignalViz:
@@ -38,3 +42,7 @@ class SignalViz:
         self.canvas.fill_style = "black"
         self.canvas.font = "20px serif"
         self.canvas.fill_text(self.info, self.x - 10, self.y + 5)
+
+    @property
+    def coordinates(self):
+        return self.x, self.y

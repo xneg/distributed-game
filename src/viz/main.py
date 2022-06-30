@@ -10,8 +10,11 @@ from engine.node import NodeFactory, Node
 from engine.signal import Signal
 from engine.simulator_loop import SimulatorLoop
 from engine.timer import Timer
+from viz.client_viz import ClientViz
+from viz.gateway_viz import GatewayViz
+from viz.node_viz import NodeViz
 from viz.signal_viz import SignalViz
-from viz.utils import draw_client, draw_background, draw_node, draw_gateway
+from viz.utils import draw_background
 
 
 class Runner:
@@ -54,7 +57,6 @@ class Runner:
 
         draw_background(self._background)
         objects_to_draw = {}
-
         try:
             while True:
                 if self._finished:
@@ -63,24 +65,36 @@ class Runner:
                     continue
                 simulator.process()
                 objects = simulator.objects
-                clients = [o for o in objects if isinstance(o, Client)]
-                nodes = [o for o in objects if issubclass(type(o), Node)]
-                signals = [o for o in objects if isinstance(o, Signal)]
 
-                object_positions = _draw_nodes(clients, nodes, gateway, self._nodes_layer)
-
-                for s in signals:
-                    if s not in objects_to_draw:
-                        objects_to_draw[s] = SignalViz(
-                            s,
-                            object_positions[s.from_node],
-                            object_positions[s.to_node],
-                            self._signals_layer)
+                for o in simulator.objects:
+                    if o not in objects_to_draw:
+                        if isinstance(o, Signal):
+                            objects_to_draw[o] = SignalViz(
+                                o,
+                                objects_to_draw[o.from_node].coordinates,
+                                objects_to_draw[o.to_node].coordinates,
+                                self._signals_layer,
+                            )
+                        elif isinstance(o, Gateway):
+                            objects_to_draw[o] = GatewayViz(
+                                self._nodes_layer
+                            )
+                        elif isinstance(o, Node):
+                            objects_to_draw[o] = NodeViz(
+                                o,
+                                self._nodes_count,
+                                self._nodes_layer
+                            )
+                        elif isinstance(o, Client):
+                            objects_to_draw[o] = ClientViz(
+                                o, self._clients_count, self._nodes_layer
+                            )
 
                 # TODO: should distinguish between simulator time and draw time
                 # time.sleep(0.3)
                 for i in range(0, ratio):
-                    with hold_canvas(self._signals_layer):
+                    with hold_canvas():
+                        self._nodes_layer.clear()
                         self._signals_layer.clear()
                         for (k, v) in objects_to_draw.copy().items():
                             if k in objects:
@@ -97,29 +111,11 @@ class Runner:
 
     @out.capture()
     def on_keyboard_event(self, key, shift_key, ctrl_key, meta_key):
-        if key == ' ':
+        if key == " ":
             self._paused = not self._paused
-        if key == 'Escape':
+        if key == "Escape":
             self._finished = True
 
     @property
     def get_out(self):
         return self.out
-
-
-def _draw_nodes(clients, nodes, gateway, canvas):
-    with hold_canvas(canvas):
-        canvas.reset_transform()
-        canvas.clear()
-
-        object_positions = {}
-
-        for idx, c in enumerate(clients):
-            object_positions[c.id] = draw_client(canvas, idx, c.id, c.state, len(clients))
-        object_positions[gateway.id] = draw_gateway(canvas)
-
-        # canvas.translate(canvas.width // 2, canvas.height // 4)
-        center = (canvas.width // 2, canvas.height // 4)
-        for idx, n in enumerate(nodes):
-            object_positions[n.id] = draw_node(canvas, center, idx, n.id, str(n.storage), len(nodes))
-    return object_positions

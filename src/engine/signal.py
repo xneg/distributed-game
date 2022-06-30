@@ -110,7 +110,7 @@ class SignalFactory:
         message_packet = MessagePacket(sender, message)
         signal = Signal(recipient=recipient, message_packet=message_packet, duration=duration)
         # TODO: BAD CODE!
-        signal.set_from_to(sender.id, recipient.id)
+        signal.set_from_to(sender, recipient)
         return message_packet.id
 
     @staticmethod
@@ -123,4 +123,4 @@ class SignalFactory:
         message_response = MessageResponse(packet_id, message)
         signal = Signal(recipient=recipient, message_packet=message_response, duration=duration)
         # TODO: BAD CODE!
-        signal.set_from_to(sender.id, recipient.id)
+        signal.set_from_to(sender, recipient)
