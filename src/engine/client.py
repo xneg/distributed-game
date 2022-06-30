@@ -2,7 +2,7 @@ import random
 from enum import Enum
 
 from engine.consistency_checker import ConsistencyChecker
-from engine.contracts import ClientReadRequest, ClientWriteRequest
+from engine.contracts import ClientReadRequest, ClientWriteRequest, ClientReadResponse, ClientWriteResponse
 from engine.timer import Timer
 from engine.web_server import WebServer
 
@@ -23,6 +23,7 @@ class Client(WebServer):
         self._checker = checker
         self._type = client_type
         self._waiting = False
+        self._state = ''
 
     @WebServer.timer(interval=1)
     def _send_request(self):
@@ -36,6 +37,11 @@ class Client(WebServer):
         self._checker.add_event(client_id=self.id, event=request)
         response = self.send_message(self._gateway_id, request).wait()
         response = yield from response
+
+        if isinstance(response, ClientReadResponse):
+            self._state = "R" + str(response.value)
+        elif isinstance(response, ClientWriteResponse):
+            self._state = "W+"
 
         self._checker.add_event(client_id=self.id, event=response)
         for i in range(random.randrange(Client.max_pause) + 1):
@@ -59,6 +65,10 @@ class Client(WebServer):
         elif self._type == ClientType.Write:
             request_type = RequestType.Write
         return request_type
+
+    @property
+    def state(self):
+        return self._state
 
 
 class ClientFactory:

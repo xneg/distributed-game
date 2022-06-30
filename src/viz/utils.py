@@ -28,7 +28,7 @@ def draw_background(canvas):
     canvas.fill_rect(0, canvas.height * 3 // 4 - 100, canvas.width, 100)
 
 
-def draw_client(canvas, index, client_id, clients_count):
+def draw_client(canvas, index, client_id, text, clients_count):
     gap = (canvas.width - clients_count * 100) // (clients_count + 1)
     x = gap + (100 + gap) * index
     y = canvas.height * 5 // 6
@@ -37,6 +37,7 @@ def draw_client(canvas, index, client_id, clients_count):
     canvas.fill_style = "black"
     canvas.font = "20px serif"
     canvas.fill_text(client_id, x + 20, y + 30)
+    canvas.fill_text(text, x + 20, y + 60)
     return x + 50, y + 20
 
 
@@ -64,13 +65,3 @@ def draw_node(canvas, center, index, node_id, text, nodes_count):
     canvas.font = "24px serif"
     canvas.fill_text(text, x - 15, y + 80)
     return x, y + 30
-
-
-def draw_signal(canvas, text, start, end, progress):
-    canvas.fill_style = SIGNAL_COLOR
-    x = (end[0] - start[0]) * progress + start[0]
-    y = (end[1] - start[1]) * progress + start[1]
-    canvas.fill_circle(x, y, 20)
-    canvas.fill_style = "black"
-    canvas.font = "20px serif"
-    canvas.fill_text(text, x-10, y+5)

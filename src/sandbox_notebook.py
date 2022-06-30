@@ -142,7 +142,7 @@ canvas = MultiCanvas(4, width=800, height=600)
 # canvas = MultiRoughCanvas(4, width=800, height=600)
 
 display(canvas)
-runner = Runner(clients_count=2, nodes_count=3, canvas=canvas, node_type=SingleClientVersionedMajority)
+runner = Runner(clients_count=2, nodes_count=5, canvas=canvas, node_type=SingleClientVersionedMajority)
 display(runner.get_out)
 
 # runner.run()

@@ -5,13 +5,13 @@ from ipywidgets import Output
 
 from engine.client import ClientFactory, Client, ClientType
 from engine.consistency_checker import ConsistencyChecker
-from engine.contracts import ClientWriteRequest, ClientReadRequest, ClientWriteResponse, ClientReadResponse
 from engine.gateway import Gateway
 from engine.node import NodeFactory, Node
 from engine.signal import Signal
 from engine.simulator_loop import SimulatorLoop
 from engine.timer import Timer
-from viz.utils import draw_client, draw_background, draw_node, draw_signal, draw_gateway
+from viz.signal_viz import SignalViz
+from viz.utils import draw_client, draw_background, draw_node, draw_gateway
 
 
 class Runner:
@@ -53,6 +53,7 @@ class Runner:
         )
 
         draw_background(self._background)
+        objects_to_draw = {}
 
         try:
             while True:
@@ -68,10 +69,26 @@ class Runner:
 
                 object_positions = _draw_nodes(clients, nodes, gateway, self._nodes_layer)
 
+                for s in signals:
+                    if s not in objects_to_draw:
+                        objects_to_draw[s] = SignalViz(
+                            s,
+                            object_positions[s.from_node],
+                            object_positions[s.to_node],
+                            self._signals_layer)
+
                 # TODO: should distinguish between simulator time and draw time
                 # time.sleep(0.3)
                 for i in range(0, ratio):
-                    _draw_signals(object_positions, signals, i / ratio, self._signals_layer)
+                    with hold_canvas(self._signals_layer):
+                        self._signals_layer.clear()
+                        for (k, v) in objects_to_draw.copy().items():
+                            if k in objects:
+                                v.move(i / ratio)
+                                v.draw()
+                            else:
+                                objects_to_draw.pop(k)
+
                     time.sleep(draw_timer_interval)
         except KeyboardInterrupt:
             print("finished!")
@@ -90,34 +107,6 @@ class Runner:
         return self.out
 
 
-def _draw_signals(object_positions, signals, draw_progress, canvas):
-    with hold_canvas(canvas):
-        canvas.reset_transform()
-        canvas.clear()
-
-        for s in signals:
-            info = ''
-            message = s.message
-            if isinstance(message, ClientWriteRequest):
-                info = f"W{message.value}"
-            elif isinstance(message, ClientReadRequest):
-                info = f"R"
-            elif isinstance(message, ClientWriteResponse):
-                info = f"W+"
-            elif isinstance(message, ClientReadResponse):
-                info = f"R{message.value}"
-            else:
-                info = str(s.message)
-
-            draw_signal(
-                canvas,
-                info,
-                object_positions[s.from_node],
-                object_positions[s.to_node],
-                s.progress + s.speed * draw_progress,
-            )
-
-
 def _draw_nodes(clients, nodes, gateway, canvas):
     with hold_canvas(canvas):
         canvas.reset_transform()
@@ -126,7 +115,7 @@ def _draw_nodes(clients, nodes, gateway, canvas):
         object_positions = {}
 
         for idx, c in enumerate(clients):
-            object_positions[c.id] = draw_client(canvas, idx, c.id, len(clients))
+            object_positions[c.id] = draw_client(canvas, idx, c.id, c.state, len(clients))
         object_positions[gateway.id] = draw_gateway(canvas)
 
         # canvas.translate(canvas.width // 2, canvas.height // 4)
