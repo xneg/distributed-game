@@ -30,4 +30,3 @@ class ClientViz:
         gap = (self.canvas.width - clients_count * 100) // (clients_count + 1)
         self.x = gap + (100 + gap) * index + 50
         self.y = self.canvas.height * 5 // 6 + 20
-        print(f"client position {self.canvas.width} {gap} {self.x} {self.y}")
