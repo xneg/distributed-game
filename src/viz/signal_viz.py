@@ -43,6 +43,9 @@ class SignalViz:
         self.canvas.font = "20px serif"
         self.canvas.fill_text(self.info, self.x - 10, self.y + 5)
 
+    def set_hovered(self, x, y):
+        pass
+
     @property
     def coordinates(self):
         return self.x, self.y

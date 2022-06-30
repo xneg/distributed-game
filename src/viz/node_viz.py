@@ -24,6 +24,9 @@ class NodeViz:
         self.canvas.font = "24px serif"
         self.canvas.fill_text(str(self.node.storage), self.x - 15, self.y + 50)
 
+    def set_hovered(self, x, y):
+        pass
+
     @property
     def coordinates(self):
         return self.x, self.y

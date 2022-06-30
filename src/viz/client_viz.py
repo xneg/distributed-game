@@ -22,6 +22,9 @@ class ClientViz:
         self.canvas.fill_text(self.client.id, self.x - 30, self.y + 10)
         self.canvas.fill_text(self.client.state, self.x - 20, self.y + 50)
 
+    def set_hovered(self, x, y):
+        pass
+
     @property
     def coordinates(self):
         return self.x, self.y

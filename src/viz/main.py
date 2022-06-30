@@ -29,7 +29,9 @@ class Runner:
         self._nodes_layer = canvas[1]
         self._signals_layer = canvas[2]
         self._node_type = node_type
-        canvas.on_key_down(self.on_keyboard_event)
+        self._viz_objects = {}
+        canvas.on_key_down(self.handle_keyboard_event)
+        canvas.on_mouse_move(self.handle_mouse_move)
 
     def run(self):
         simulator_timer_interval = 0.3
@@ -39,23 +41,20 @@ class Runner:
         simulator = self._create_simulator()
 
         draw_background(self._background)
-        viz_objects = {}
 
         try:
             while True:
                 if self._finished:
                     raise KeyboardInterrupt
-                if self._paused:
-                    continue
+                if not self._paused:
+                    simulator.process()
 
-                simulator.process()
-
-                for o in [o for o in simulator.objects if o not in viz_objects]:
-                    viz_objects[o] = self._create_viz_object(o, viz_objects)
+                for o in [o for o in simulator.objects if o not in self._viz_objects]:
+                    self._viz_objects[o] = self._create_viz_object(o, self._viz_objects)
 
                 # TODO: maybe this need to be optimized
                 for i in range(0, ratio):
-                    self._draw_viz_objects(i / ratio, simulator.objects, viz_objects)
+                    self._draw_viz_objects(i / ratio, simulator.objects, self._viz_objects)
                     time.sleep(draw_timer_interval)
 
         except KeyboardInterrupt:
@@ -64,11 +63,17 @@ class Runner:
             Timer.clear()
 
     @out.capture()
-    def on_keyboard_event(self, key, shift_key, ctrl_key, meta_key):
+    def handle_keyboard_event(self, key, shift_key, ctrl_key, meta_key):
         if key == " ":
             self._paused = not self._paused
         if key == "Escape":
             self._finished = True
+
+    @out.capture()
+    def handle_mouse_move(self, x, y):
+        for o in self._viz_objects.values():
+            o.set_hovered(x, y)
+        # print("Mouse move event:", x, y)
 
     @property
     def get_out(self):
