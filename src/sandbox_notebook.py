@@ -168,3 +168,5 @@ canvas.on_key_down(on_keyboard_event)
 
 display(canvas)
 display(out)
+
+# %%
