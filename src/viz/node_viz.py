@@ -27,6 +27,9 @@ class NodeViz:
     def set_hovered(self, x, y):
         pass
 
+    def click(self, x, y):
+        pass
+
     @property
     def coordinates(self):
         return self.x, self.y

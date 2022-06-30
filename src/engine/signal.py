@@ -60,6 +60,9 @@ class Signal:
             self._send_message()
             self._destroyed = True
 
+    def destroy(self):
+        self._destroyed = True
+
     def destroyed(self):
         return self._destroyed
 

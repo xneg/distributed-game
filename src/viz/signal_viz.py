@@ -1,3 +1,5 @@
+import math
+
 from engine.contracts import (
     ClientWriteRequest,
     ClientReadRequest,
@@ -8,6 +10,8 @@ from viz.utils import SIGNAL_COLOR
 
 
 class SignalViz:
+    radius = 20
+
     def __init__(self, signal, start, end, canvas):
         self.signal = signal
         self.end = end
@@ -15,6 +19,7 @@ class SignalViz:
         self.canvas = canvas
         self.x = start[0]
         self.y = start[1]
+        self.hovered = False
 
         message = signal.message
         if isinstance(message, ClientWriteRequest):
@@ -38,13 +43,18 @@ class SignalViz:
 
     def draw(self):
         self.canvas.fill_style = SIGNAL_COLOR
-        self.canvas.fill_circle(self.x, self.y, 20)
+        self.canvas.fill_circle(self.x, self.y, SignalViz.radius)
         self.canvas.fill_style = "black"
         self.canvas.font = "20px serif"
-        self.canvas.fill_text(self.info, self.x - 10, self.y + 5)
+        if self.hovered:
+            self.canvas.fill_text(self.info, self.x - 10, self.y + 35)
 
     def set_hovered(self, x, y):
-        pass
+        self.hovered = math.sqrt(math.pow(x - self.x, 2) + math.pow(y - self.y, 2)) <= SignalViz.radius
+
+    def click(self, x, y):
+        if self.hovered:
+            self.signal.destroy()
 
     @property
     def coordinates(self):

@@ -25,6 +25,8 @@ class GatewayViz:
         self.hovered = (self.x - 50 <= x <= self.x + 50) \
                        and (self.y - 30 <= y <= self.y + 30)
 
+    def click(self, x, y):
+        pass
 
     @property
     def coordinates(self):

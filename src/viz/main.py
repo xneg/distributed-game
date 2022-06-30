@@ -32,6 +32,7 @@ class Runner:
         self._viz_objects = {}
         canvas.on_key_down(self.handle_keyboard_event)
         canvas.on_mouse_move(self.handle_mouse_move)
+        canvas.on_mouse_down(self.handle_mouse_down)
 
     def run(self):
         simulator_timer_interval = 0.3
@@ -43,19 +44,24 @@ class Runner:
         draw_background(self._background)
 
         try:
+            i = 0
             while True:
                 if self._finished:
                     raise KeyboardInterrupt
-                if not self._paused:
+                if i == 0:
                     simulator.process()
 
                 for o in [o for o in simulator.objects if o not in self._viz_objects]:
                     self._viz_objects[o] = self._create_viz_object(o, self._viz_objects)
 
-                # TODO: maybe this need to be optimized
-                for i in range(0, ratio):
-                    self._draw_viz_objects(i / ratio, simulator.objects, self._viz_objects)
+                self._draw_viz_objects(i / ratio, simulator.objects, self._viz_objects)
+
+                if not self._paused:
+                    i = i + 1 if i < ratio else 0
                     time.sleep(draw_timer_interval)
+                else:
+                    i = 1 if i == 0 else i
+                    time.sleep(simulator_timer_interval)
 
         except KeyboardInterrupt:
             print("finished!")
@@ -73,7 +79,14 @@ class Runner:
     def handle_mouse_move(self, x, y):
         for o in self._viz_objects.values():
             o.set_hovered(x, y)
-        # print("Mouse move event:", x, y)
+
+    @out.capture()
+    def handle_mouse_down(self, x, y):
+        try:
+            for o in self._viz_objects.values():
+                o.click(x, y)
+        except Exception as e:
+            print(e)
 
     @property
     def get_out(self):
