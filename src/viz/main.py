@@ -20,7 +20,7 @@ from viz.utils import draw_background
 class Runner:
     out = Output()
 
-    def __init__(self, clients_count, nodes_count, canvas, node_type):
+    def __init__(self, clients_count, nodes_count, canvas, node_type, fps=60, step_interval=0.3):
         self._finished = False
         self._paused = False
         self.elapsed_time = 0
@@ -34,10 +34,10 @@ class Runner:
         self._node_type = node_type
 
         self._viz_objects = {}
-        self.dt_s = 1.0 / 60
+        self.dt_s = 1.0 / fps
         self.simulator = self._create_simulator()
 
-        self.simulator_timer_interval = 0.3
+        self.step_interval = step_interval
 
         canvas.on_key_down(self.handle_keyboard_event)
         canvas.on_mouse_move(self.handle_mouse_move)
@@ -63,7 +63,7 @@ class Runner:
         if not self._paused:
             self.elapsed_time = self.elapsed_time + self.dt_s
 
-            if self.elapsed_time > (self.elapsed_steps + 1) * self.simulator_timer_interval:
+            if self.elapsed_time > (self.elapsed_steps + 1) * self.step_interval:
                 self.simulator.process()
                 self.elapsed_steps = self.elapsed_steps + 1
 
@@ -71,8 +71,8 @@ class Runner:
                 self._viz_objects[o] = self._create_viz_object(o, self._viz_objects)
 
         progress = (
-            self.elapsed_time - self.elapsed_steps * self.simulator_timer_interval
-        ) / self.simulator_timer_interval
+            self.elapsed_time - self.elapsed_steps * self.step_interval
+        ) / self.step_interval
         self._draw_viz_objects(max(progress, 0), self.simulator.objects, self._viz_objects)
 
     @out.capture()
