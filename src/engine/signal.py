@@ -101,6 +101,7 @@ class Signal:
 
 class SignalFactory:
     const_time = None
+    min_duration = 1
     max_duration = 10
 
     @staticmethod
@@ -108,7 +109,7 @@ class SignalFactory:
         duration = (
             SignalFactory.const_time
             if SignalFactory.const_time
-            else random.randrange(1, SignalFactory.max_duration + 1)
+            else SignalFactory.get_random_duration()
         )
         message_packet = MessagePacket(sender, message)
         signal = Signal(recipient=recipient, message_packet=message_packet, duration=duration)
@@ -117,11 +118,15 @@ class SignalFactory:
         return message_packet.id
 
     @staticmethod
+    def get_random_duration():
+        return random.randrange(SignalFactory.min_duration, SignalFactory.max_duration + 1)
+
+    @staticmethod
     def create_response(sender, recipient, packet_id, message):
         duration = (
             SignalFactory.const_time
             if SignalFactory.const_time
-            else random.randrange(1, SignalFactory.max_duration + 1)
+            else SignalFactory.get_random_duration()
         )
         message_response = MessageResponse(packet_id, message)
         signal = Signal(recipient=recipient, message_packet=message_response, duration=duration)
