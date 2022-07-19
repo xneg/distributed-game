@@ -11,13 +11,12 @@ from .client_viz import ClientViz
 from .gateway_viz import GatewayViz
 from .node_viz import NodeViz
 from .signal_viz import SignalViz
-from .single_client_versioned_majority import SingleClientVersionedMajority
 from .utils import draw_background, draw_objects_count
 
 
 class Runner:
     def __init__(self, canvas):
-        self._node_type = SingleClientVersionedMajority
+        self._node_type = None
         self._clients_count = 2
         self._nodes_count = 5
         self._finished = False
@@ -26,7 +25,8 @@ class Runner:
         self.canvas = canvas
 
 
-    def setup(self):
+    def setup(self, node_type):
+        self._node_type = node_type
         self.simulator_timer_interval = 0.3
         self.draw_timer_interval = 1. / 60
         self.ratio = int(self.simulator_timer_interval // self.draw_timer_interval)

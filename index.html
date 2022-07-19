@@ -5,12 +5,42 @@
     <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
 <!--    <link rel="stylesheet" href="./pyscript/pyscript.css" />-->
 <!--    <script defer src="./pyscript/pyscript.js"></script>-->
+    <!-- import codemirror stylings -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.48.4/codemirror.min.css" />
+    <!-- install codemirror.js version /5.63.3 from cdn -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.3/codemirror.min.js"
+    integrity="sha512-XMlgZzPyVXf1I/wbGnofk1Hfdx+zAWyZjh6c21yGo/k1zNC4Ve6xcQnTDTCHrjFGsOrVicJsBURLYktVEu/8vQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- install codemirror python language support -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.3/mode/python/python.min.js"
+    integrity="sha512-/mavDpedrvPG/0Grj2Ughxte/fsm42ZmZWWpHz1jCbzd5ECv8CB7PomGtw0NAnhHmE/lkDFkRMupjoohbKNA1Q=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- import codemirror dracula theme styles from cdn -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.3/theme/dracula.css"/>
+    <style>
+    /* set codemirror ide height to 100% of the textarea */
+        .CodeMirror {
+          height: 100%;
+        }
+    </style>
     <py-env>
       - pywebcanvas
-      - ./distributed_game-0.1.0-py3-none-any.whl
+      - ./dist/distributed_game-0.1.0-py3-none-any.whl
     </py-env>
   </head>
   <body>
-    <py-script src="./wa.py"></py-script>
+    <div style="width: 65%; float:left">
+        <div style="position:absolute; bottom:50px; left: 50px">
+<!--            <button id="submit-button" type="submit" pys-onClick="my_function" class="mx-2 my-4 h-12 px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm bg-green-700 hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-700 text-slate-300">OK</button>-->
+            <button id="submit-button" name="submit-button" type="button" onclick="foo()" class="mx-2 my-4 h-12 px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm bg-green-700 hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-700 text-slate-300">OK</button>
+            <textarea id="test-input" name="test-input" style="display: none;"></textarea>
+            <textarea id="example-code"></textarea>
+        </div>
+        <py-script src="./wa.py"></py-script>
+    </div>
+    <div style="width: 35%; float:right">
+        <textarea id="code" name="code"></textarea>
+    </div>
+    <script src="test.js"></script>
   </body>
 </html>

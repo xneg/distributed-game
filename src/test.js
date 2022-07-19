@@ -1,23 +1,29 @@
-# ---
-# jupyter:
-#   jupytext:
-#     formats: ipynb,py:percent
-#     text_representation:
-#       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.13.8
-#   kernelspec:
-#     display_name: .venv
-#     language: python
-#     name: .venv
-# ---
+const input = document.getElementById("test-input");
+// const example_code = document.getElementById("example-code");
+// initialize codemirror and pass configuration to support Python and the dracula theme
+const editor = CodeMirror.fromTextArea(
+  document.getElementById("code"), {
+    mode: {
+      name: "python",
+      version: 3,
+      singleLineStringErrors: false,
+    },
+    theme: "dracula",
+    lineNumbers: true,
+    indentUnit: 4,
+    matchBrackets: true,
+  }
+);
+// set the initial value of the editor
+// editor.setValue(example_code.value);
+// editor.setValue("111");
 
-# %%
-# %load_ext autoreload
+function foo() {
+    let text = editor.getValue();
+    input.value = text;
+}
 
-# %%
-from dataclasses import dataclass
+let example_code = `from dataclasses import dataclass
 from operator import attrgetter
 
 from engine.contracts import (
@@ -59,7 +65,6 @@ class WriteRequest:
     version: int
 
 
-# noinspection PyTypeChecker
 class SingleClientVersionedMajority(Node):
     @property
     def write_quorum(self):
@@ -130,43 +135,24 @@ class SingleClientVersionedMajority(Node):
         self.storage["x"] = (request.value, request.version)
         # TODO: without return "Ack" (or anything else) wait_all doesn't work
         return "Ack"
+`
+editor.setValue(example_code)
+// example_code.addEventListener("DOMCharacterDataModified", function (event) {
+//     alert("Fock you!")
+//     // editor.setValue("fock you!");
+//     editor.setValue(example_code.value);
+// })
+// example_code.innerText.o = function() {
+//
+// }
+// window.onload = function() {
+//     editor.setValue(example_code.value);
+// }
+// document.addEventListener("load", function(){
+//     // editor.setValue(example_code.value);
+//     editor.setValue("bla");
+// });
 
-
-# %% pycharm={"name": "#%%\n"}
-# %autoreload 2
-from viz.main import Runner
-from ipycanvas import MultiCanvas, MultiRoughCanvas
-import threading
-
-canvas = MultiCanvas(4, width=800, height=600)
-# canvas = MultiRoughCanvas(4, width=800, height=600)
-
-display(canvas)
-runner = Runner(clients_count=2, nodes_count=3, canvas=canvas, node_type=SingleClientVersionedMajority)
-display(runner.get_out)
-
-# runner.run()
-thread = threading.Thread(target=runner.run)
-thread.start()
-
-# %%
-from ipywidgets import Output
-from ipycanvas import RoughCanvas, MultiRoughCanvas
-
-out = Output()
-multiCanvas = MultiRoughCanvas(4, width=80, height=60)
-# canvas = RoughCanvas(width=80, height=60)
-canvas = multiCanvas[0]
-
-
-@out.capture()
-def on_keyboard_event(key, shift_key, ctrl_key, meta_key):
-    print("Keyboard event:", key, shift_key, ctrl_key, meta_key)
-
-# canvas._canvases[-1].on_key_down(on_keyboard_event)
-canvas.on_key_down(on_keyboard_event)
-
-display(canvas)
-display(out)
-
-# %%
+// document.addEventListener('load', function () {
+//   alert("It's loaded!")
+// })
