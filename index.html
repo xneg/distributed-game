@@ -35,6 +35,10 @@
             <button id="run-button" type="button" onclick="foo()" class="mx-2 my-4 h-12 px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm bg-blue-700 hover:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-700 text-slate-300">Run</button>
             <button id="pause-button" type="button" class="mx-2 my-4 h-12 px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm bg-yellow-700 hover:bg-yellow-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-700 text-slate-300">Pause</button>
             <button id="clear-button" type="button" class="mx-2 my-4 h-12 px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm bg-red-700 hover:bg-red-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-700 text-slate-300">Clear</button>
+            <label for="clients-count">Clients count:</label>
+            <input type="number" id="clients-count" min="1" max="5" value="2" style="width: 40px">
+            <label for="nodes-count">Nodes count:</label>
+            <input type="number" id="nodes-count" min="1" max="10" value="5" style="width: 40px">
             <textarea id="test-input" name="test-input" style="display: none;"></textarea>
             <textarea id="example-code" style="display: none;"></textarea>
         </div>

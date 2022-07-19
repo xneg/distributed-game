@@ -1,4 +1,5 @@
 import pywebcanvas as pwc
+from js import console
 
 from engine.node import Node
 from wa_viz.loop import Loop
@@ -17,17 +18,22 @@ loop = Loop()
 
 def run(*args, **kwargs):
     run_button.disabled = True
-    text = Element('test-input').element.value
+    text = Element("test-input").element.value
     exec(text, globals(), globals())
-    runner.setup(node_type=Node.__subclasses__()[-1], clients_count=2, nodes_count=5)
+    clients_count = Element("clients-count").element.value
+    nodes_count = Element("nodes-count").element.value
+    runner.setup(
+        node_type=Node.__subclasses__()[-1],
+        clients_count=int(clients_count),
+        nodes_count=int(nodes_count),
+    )
     pwc.add_event_handler("mousemove", runner.handle_mouse_move)
     loop.add_task("on_update", runner.run)
     loop.run()
 
 
 def pause(*args, **kwargs):
-    from js import console
-    console.warn("PAUSE!")
+    console.log("PAUSE!")
     runner.switch_pause()
 
 
@@ -37,6 +43,7 @@ def clear(*args, **kwargs):
     loop.remove_task("on_update")
     runner.clear()
     run_button.disabled = False
+
 
 # n_clusters = pn.widgets.IntSlider(name='n_clusters', start=1, end=5, value=3)
 # show(n_clusters, 'n-widget')
@@ -52,7 +59,8 @@ clear_button = document.getElementById("clear-button")
 clear_button.addEventListener("click", create_proxy(clear))
 
 import wa_viz.single_client_versioned_majority
+
 file_path = wa_viz.single_client_versioned_majority.__file__
 with open(file_path) as example_code_module:
     example_code = example_code_module.read()
-Element('example-code').element.innerText = example_code
+Element("example-code").element.innerText = example_code
