@@ -32,9 +32,10 @@
     <div style="width: 65%; float:left">
         <div style="position:absolute; bottom:50px; left: 50px">
 <!--            <button id="submit-button" type="submit" pys-onClick="my_function" class="mx-2 my-4 h-12 px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm bg-green-700 hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-700 text-slate-300">OK</button>-->
-            <button id="submit-button" name="submit-button" type="button" onclick="foo()" class="mx-2 my-4 h-12 px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm bg-green-700 hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-700 text-slate-300">OK</button>
+            <button id="run-button" type="button" onclick="foo()" class="mx-2 my-4 h-12 px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm bg-blue-700 hover:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-700 text-slate-300">Run</button>
+            <button id="clear-button" type="button" class="mx-2 my-4 h-12 px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm bg-red-700 hover:bg-red-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-700 text-slate-300">Clear</button>
             <textarea id="test-input" name="test-input" style="display: none;"></textarea>
-            <textarea id="example-code"></textarea>
+            <textarea id="example-code" style="display: none;"></textarea>
         </div>
         <py-script src="./wa.py"></py-script>
     </div>

@@ -11,7 +11,7 @@ from .client_viz import ClientViz
 from .gateway_viz import GatewayViz
 from .node_viz import NodeViz
 from .signal_viz import SignalViz
-from .utils import draw_background, draw_objects_count
+from .utils import draw_background
 
 
 class Runner:
@@ -100,3 +100,10 @@ class Runner:
                 v.draw()
             else:
                 viz_objects.pop(k)
+
+    def clear(self):
+        self.canvas.clear()
+        SimulatorLoop.clear()
+        Timer.clear()
+
+
