@@ -16,17 +16,14 @@ from .utils import draw_background
 
 class Runner:
     def __init__(self, canvas):
-        self._node_type = None
-        self._clients_count = 2
-        self._nodes_count = 5
-        self._finished = False
         self._paused = False
         self._viz_objects = {}
         self.canvas = canvas
 
-
-    def setup(self, node_type):
+    def setup(self, node_type, clients_count, nodes_count):
         self._node_type = node_type
+        self._clients_count = clients_count
+        self._nodes_count = nodes_count
         self.simulator_timer_interval = 0.3
         self.draw_timer_interval = 1. / 60
         self.ratio = int(self.simulator_timer_interval // self.draw_timer_interval)
@@ -54,6 +51,9 @@ class Runner:
     @property
     def objects_count(self):
         return len(self.simulator.objects)
+
+    def switch_pause(self):
+        self._paused = not self._paused
 
     def handle_mouse_move(self, e):
         for o in self._viz_objects.values():
@@ -103,6 +103,7 @@ class Runner:
 
     def clear(self):
         self.canvas.clear()
+        self._paused = False
         SimulatorLoop.clear()
         Timer.clear()
 

@@ -19,10 +19,16 @@ def run(*args, **kwargs):
     run_button.disabled = True
     text = Element('test-input').element.value
     exec(text, globals(), globals())
-    runner.setup(node_type=Node.__subclasses__()[-1])
+    runner.setup(node_type=Node.__subclasses__()[-1], clients_count=2, nodes_count=5)
     pwc.add_event_handler("mousemove", runner.handle_mouse_move)
     loop.add_task("on_update", runner.run)
     loop.run()
+
+
+def pause(*args, **kwargs):
+    from js import console
+    console.warn("PAUSE!")
+    runner.switch_pause()
 
 
 def clear(*args, **kwargs):
@@ -38,6 +44,9 @@ def clear(*args, **kwargs):
 
 run_button = document.getElementById("run-button")
 run_button.addEventListener("click", create_proxy(run))
+
+pause_button = document.getElementById("pause-button")
+pause_button.addEventListener("click", create_proxy(pause))
 
 clear_button = document.getElementById("clear-button")
 clear_button.addEventListener("click", create_proxy(clear))
