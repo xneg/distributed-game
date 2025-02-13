@@ -1,3 +1,4 @@
+from pyodide import create_proxy
 from js import console, window
 import pywebcanvas as pwc
 
@@ -48,15 +49,14 @@ def clear(*args, **kwargs):
 # n_clusters = pn.widgets.IntSlider(name='n_clusters', start=1, end=5, value=3)
 # show(n_clusters, 'n-widget')
 
-
 run_button = document.getElementById("run-button")
-run_button.addEventListener("click", run)
+run_button.addEventListener("click", create_proxy(run))
 
 pause_button = document.getElementById("pause-button")
-pause_button.addEventListener("click", pause)
+pause_button.addEventListener("click", create_proxy(pause))
 
 clear_button = document.getElementById("clear-button")
-clear_button.addEventListener("click", clear)
+clear_button.addEventListener("click", create_proxy(clear))
 
 import wa_viz.single_client_versioned_majority
 
