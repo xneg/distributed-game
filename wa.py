@@ -1,4 +1,4 @@
-from pyodide import create_proxy
+from pyodide.ffi import create_proxy
 from js import console, window
 import pywebcanvas as pwc
 
