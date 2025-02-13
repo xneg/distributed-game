@@ -1,5 +1,5 @@
 import pywebcanvas as pwc
-from js import console
+from js import console, document
 
 from engine.node import Node
 from wa_viz.loop import Loop
