@@ -5,6 +5,8 @@ from engine.node import Node
 from wa_viz.loop import Loop
 from wa_viz.main import Runner
 
+from pyscript import document
+
 pwc.disable_logging(True)
 canvas = pwc.Canvas(800, 600)
 runner = Runner(canvas)
@@ -16,10 +18,10 @@ loop = Loop()
 
 def run(*args, **kwargs):
     run_button.disabled = True
-    text = Element("test-input").element.value
+    text = document.getElementById("test-input").value
     exec(text, globals(), globals())
-    clients_count = Element("clients-count").element.value
-    nodes_count = Element("nodes-count").element.value
+    clients_count = document.getElementById("clients-count").value
+    nodes_count = document.getElementById("nodes-count").value
     runner.setup(
         node_type=Node.__subclasses__()[-1],
         clients_count=int(clients_count),
@@ -47,18 +49,18 @@ def clear(*args, **kwargs):
 # show(n_clusters, 'n-widget')
 
 
-run_button = Element("run-button")
-run_button.element.addEventListener("click", run)
+run_button = document.getElementById("run-button")
+run_button.addEventListener("click", run)
 
-pause_button = Element("pause-button")
-pause_button.element.addEventListener("click", pause)
+pause_button = document.getElementById("pause-button")
+pause_button.addEventListener("click", pause)
 
-clear_button = Element("clear-button")
-clear_button.element.addEventListener("click", clear)
+clear_button = document.getElementById("clear-button")
+clear_button.addEventListener("click", clear)
 
 import wa_viz.single_client_versioned_majority
 
 file_path = wa_viz.single_client_versioned_majority.__file__
 with open(file_path) as example_code_module:
     example_code = example_code_module.read()
-Element("example-code").element.innerText = example_code
+document.getElementById("example-code").innerText = example_code
