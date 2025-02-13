@@ -4,7 +4,6 @@ from js import console
 from engine.node import Node
 from wa_viz.loop import Loop
 from wa_viz.main import Runner
-from pyodide import create_proxy
 
 pwc.disable_logging(True)
 canvas = pwc.Canvas(800, 600)
@@ -50,13 +49,13 @@ def clear(*args, **kwargs):
 
 
 run_button = document.getElementById("run-button")
-run_button.addEventListener("click", create_proxy(run))
+run_button.addEventListener("click", run)
 
 pause_button = document.getElementById("pause-button")
-pause_button.addEventListener("click", create_proxy(pause))
+pause_button.addEventListener("click", pause)
 
 clear_button = document.getElementById("clear-button")
-clear_button.addEventListener("click", create_proxy(clear))
+clear_button.addEventListener("click", clear)
 
 import wa_viz.single_client_versioned_majority
 
