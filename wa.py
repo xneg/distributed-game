@@ -1,5 +1,5 @@
+from js import console, window
 import pywebcanvas as pwc
-from js import console, document
 
 from engine.node import Node
 from wa_viz.loop import Loop
@@ -10,7 +10,7 @@ canvas = pwc.Canvas(800, 600)
 runner = Runner(canvas)
 loop = Loop()
 
-
+document = window.document
 # async def on_update():
 #     await runner.run()
 
