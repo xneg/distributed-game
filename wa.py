@@ -10,7 +10,6 @@ canvas = pwc.Canvas(800, 600)
 runner = Runner(canvas)
 loop = Loop()
 
-document = window.document
 # async def on_update():
 #     await runner.run()
 
@@ -48,14 +47,14 @@ def clear(*args, **kwargs):
 # show(n_clusters, 'n-widget')
 
 
-run_button = document.getElementById("run-button")
-run_button.addEventListener("click", run)
+run_button = Element("run-button")
+run_button.element.addEventListener("click", run)
 
-pause_button = document.getElementById("pause-button")
-pause_button.addEventListener("click", pause)
+pause_button = Element("pause-button")
+pause_button.element.addEventListener("click", pause)
 
-clear_button = document.getElementById("clear-button")
-clear_button.addEventListener("click", clear)
+clear_button = Element("clear-button")
+clear_button.element.addEventListener("click", clear)
 
 import wa_viz.single_client_versioned_majority
 
