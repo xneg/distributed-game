@@ -29,10 +29,9 @@
           height: 100%;
         }
     </style>
-    <py-env>
-      - pywebcanvas
-      - ./distributed_game-0.1.0-py3-none-any.whl
-    </py-env>
+    <py-config>
+      packages = ['pywebcanvas', './dist/distributed_game-0.1.0-py3-none-any.whl']
+    </py-config>
   </head>
   <body>
     <div style="width: 800px; float:left">
